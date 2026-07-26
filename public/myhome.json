@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "configured": false,
+  "siteTitle": "MyHome",
+  "siteSubtitle": "",
+  "profile": {
+    "displayName": "",
+    "username": "",
+    "tagline": "",
+    "status": "",
+    "bio": "",
+    "avatar": {
+      "src": "",
+      "alt": "",
+      "credit": "",
+      "sourceUrl": ""
+    }
+  },
+  "socials": [],
+  "pages": [],
+  "blocks": [],
+  "appearance": {
+    "themeId": "aero-glass",
+    "accent": "#24c8c0",
+    "background": {
+      "src": "",
+      "alt": "",
+      "credit": "",
+      "sourceUrl": ""
+    },
+    "backgroundMode": "cover",
+    "backgroundPosition": "center",
+    "animationsEnabled": true,
+    "animationIntensity": 55
+  },
+  "updatedAt": ""
+}
