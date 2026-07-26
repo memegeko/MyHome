@@ -1,5 +1,17 @@
 # Security model
 
+## Static edition
+
+- Static Studio encrypts the full owner document with AES-256-GCM.
+- Password and recovery-key encryption keys use separate random salts and
+  PBKDF2-SHA-256 derivation.
+- Public exports omit pages, sections and contact links marked private.
+- Fine-grained GitHub publishing tokens stay in component memory and are
+  cleared after publishing.
+- Static deployments cannot enforce server-side rate limits. Because encrypted
+  repository files can be downloaded and attacked offline, owners should heed
+  the password-strength warning and use a unique password.
+
 ## One owner
 
 The server edition stores one owner row with the fixed identifier `1`.

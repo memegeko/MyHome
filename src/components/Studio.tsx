@@ -9,6 +9,8 @@ import {
 import { aeroThemePreset, emptyMedia } from "../defaults";
 import { storeMediaFile } from "../media";
 import { runtimeMode } from "../runtime";
+import { loadOwnerEnvelope } from "../runtime";
+import { publishToGitHub } from "../githubPublish";
 import type {
   AnimeBlock,
   AnimeItem,
@@ -28,13 +30,20 @@ import type {
   SocialLink,
 } from "../types";
 
-type StudioTab = "profile" | "pages" | "content" | "appearance" | "backup";
+type StudioTab =
+  | "profile"
+  | "pages"
+  | "content"
+  | "appearance"
+  | "publish"
+  | "backup";
 
 const studioTabs: Array<{ id: StudioTab; label: string; icon: string }> = [
   { id: "profile", label: "Profile & links", icon: "☺" },
   { id: "pages", label: "Pages", icon: "▤" },
   { id: "content", label: "Content blocks", icon: "▦" },
-  { id: "appearance", label: "Appearance", icon: "✦" },
+  { id: "appearance", label: "Advanced options", icon: "✦" },
+  { id: "publish", label: "Publish to GitHub", icon: "↥" },
   { id: "backup", label: "Import & export", icon: "⇄" },
 ];
 
@@ -632,6 +641,13 @@ export default function Studio({
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [advancedMode, setAdvancedMode] = useState<"simple" | "expert">("simple");
+  const [github, setGithub] = useState({
+    token: "",
+    owner: "",
+    repository: "MyHome",
+    branch: "main",
+  });
 
   const updateDocument = (next: SiteDocument) => {
     setDocument(next);
@@ -696,7 +712,7 @@ export default function Studio({
             {dirty ? "● Unsaved changes" : "✓ Saved"}
           </span>
           <button type="button" className="secondary-button" onClick={onClose}>View site</button>
-          {serverMode && onLogout && (
+          {onLogout && (
             <button
               type="button"
               className="secondary-button"
@@ -805,6 +821,21 @@ export default function Studio({
                         <Field label="Label" value={social.label} onChange={(label) => update({ ...social, label })} />
                         <Field label="Icon" value={social.icon} onChange={(icon) => update({ ...social, icon })} />
                         <Field label="URL" type="url" value={social.url} onChange={(url) => update({ ...social, url })} />
+                        <label className="check-field">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(social.private)}
+                            onChange={(event) => update({ ...social, private: event.target.checked })}
+                          />
+                          Keep this contact private
+                        </label>
+                        {social.private && (
+                          <Field
+                            label="Private placeholder"
+                            value={social.privatePlaceholder || "Private contact"}
+                            onChange={(privatePlaceholder) => update({ ...social, privatePlaceholder })}
+                          />
+                        )}
                       </div>
                     </article>
                   );
@@ -842,6 +873,21 @@ export default function Studio({
                           <input type="checkbox" checked={page.enabled} onChange={(event) => update({ ...page, enabled: event.target.checked })} />
                           Show this page
                         </label>
+                        <label className="check-field">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(page.private)}
+                            onChange={(event) => update({ ...page, private: event.target.checked })}
+                          />
+                          Keep this page private
+                        </label>
+                        {page.private && (
+                          <Field
+                            label="Private placeholder"
+                            value={page.privatePlaceholder || "Private page"}
+                            onChange={(privatePlaceholder) => update({ ...page, privatePlaceholder })}
+                          />
+                        )}
                         <Field label="Tab name" value={page.label} onChange={(label) => update({ ...page, label })} />
                         <Field label="Icon" value={page.icon} onChange={(icon) => update({ ...page, icon })} />
                       </div>
@@ -877,6 +923,23 @@ export default function Studio({
                         />
                         Show this block
                       </label>
+                      <label className="check-field">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(block.private)}
+                          onChange={(event) => updateBlock(index, { ...block, private: event.target.checked })}
+                        />
+                        Keep this section private
+                      </label>
+                      {block.private && (
+                        <Field
+                          label="Private placeholder"
+                          value={block.privatePlaceholder || "Private section"}
+                          onChange={(privatePlaceholder) =>
+                            updateBlock(index, { ...block, privatePlaceholder })
+                          }
+                        />
+                      )}
                       <Field label="Section title" value={block.title} onChange={(title) => updateBlock(index, { ...block, title })} />
                       <Field label="Icon" value={block.icon} onChange={(icon) => updateBlock(index, { ...block, icon })} />
                       <label className="editor-field">
@@ -910,8 +973,24 @@ export default function Studio({
             <>
               <div className="section-heading">
                 <div>
-                  <h1>Appearance and motion</h1>
-                  <p>Upload a full-page background and tune the Aero effects.</p>
+                  <h1>Advanced options</h1>
+                  <p>Style the whole site, individual pages and content blocks.</p>
+                </div>
+                <div className="mode-switch" role="group" aria-label="Settings mode">
+                  <button
+                    type="button"
+                    className={advancedMode === "simple" ? "is-active" : ""}
+                    onClick={() => setAdvancedMode("simple")}
+                  >
+                    Simple
+                  </button>
+                  <button
+                    type="button"
+                    className={advancedMode === "expert" ? "is-active" : ""}
+                    onClick={() => setAdvancedMode("expert")}
+                  >
+                    Expert
+                  </button>
                 </div>
               </div>
               <div className="appearance-grid">
@@ -930,6 +1009,25 @@ export default function Studio({
                     <span>Accent color</span>
                     <input type="color" value={document.appearance.accent} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, accent: event.target.value } })} />
                     <code>{document.appearance.accent}</code>
+                  </label>
+                  <label className="editor-field">
+                    <span>Body font</span>
+                    <select
+                      value={document.appearance.fontFamily}
+                      onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, fontFamily: event.target.value } })}
+                    >
+                      <option value="Segoe UI, sans-serif">Segoe UI</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="Verdana, sans-serif">Verdana</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                      <option value="monospace">Monospace</option>
+                    </select>
+                  </label>
+                  <label className="color-field">
+                    <span>Text color</span>
+                    <input type="color" value={document.appearance.textColor} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, textColor: event.target.value } })} />
+                    <code>{document.appearance.textColor}</code>
                   </label>
                 </article>
                 <article className="appearance-card">
@@ -954,6 +1052,65 @@ export default function Studio({
                       onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, animationIntensity: Number(event.target.value) } })}
                     />
                   </label>
+                  <label className="range-field">
+                    <span>Speed: {document.appearance.animationSpeed.toFixed(1)}×</span>
+                    <input
+                      type="range"
+                      min="0.2"
+                      max="3"
+                      step="0.1"
+                      disabled={!document.appearance.animationsEnabled}
+                      value={document.appearance.animationSpeed}
+                      onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, animationSpeed: Number(event.target.value) } })}
+                    />
+                  </label>
+                  <label className="editor-field">
+                    <span>Easing</span>
+                    <select
+                      value={document.appearance.animationEasing}
+                      onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, animationEasing: event.target.value as SiteDocument["appearance"]["animationEasing"] } })}
+                    >
+                      {["linear", "ease", "ease-in", "ease-out", "ease-in-out"].map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>
+                </article>
+              </div>
+              <div className="appearance-grid">
+                <article className="appearance-card">
+                  <h2>Particles</h2>
+                  <label className="editor-field">
+                    <span>Particle type</span>
+                    <select
+                      value={document.appearance.particleType}
+                      onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, particleType: event.target.value as SiteDocument["appearance"]["particleType"] } })}
+                    >
+                      <option value="bubbles">Bubbles</option>
+                      <option value="sparkles">Sparkles</option>
+                      <option value="snow">Snow</option>
+                      <option value="none">None</option>
+                    </select>
+                  </label>
+                  <label className="range-field">
+                    <span>Amount: {document.appearance.particleAmount}</span>
+                    <input type="range" min="0" max="60" value={document.appearance.particleAmount} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, particleAmount: Number(event.target.value) } })} />
+                  </label>
+                  <label className="range-field">
+                    <span>Size: {document.appearance.particleSize}px</span>
+                    <input type="range" min="6" max="80" value={document.appearance.particleSize} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, particleSize: Number(event.target.value) } })} />
+                  </label>
+                  <label className="editor-field">
+                    <span>Direction</span>
+                    <select value={document.appearance.particleDirection} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, particleDirection: event.target.value as SiteDocument["appearance"]["particleDirection"] } })}>
+                      {["up", "down", "left", "right"].map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>
+                </article>
+                <article className="appearance-card">
+                  <h2>Panels and spacing</h2>
+                  <label className="color-field"><span>Panel color</span><input type="color" value={document.appearance.panelColor} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, panelColor: event.target.value } })} /><code>{document.appearance.panelColor}</code></label>
+                  <label className="color-field"><span>Border color</span><input type="color" value={document.appearance.borderColor} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, borderColor: event.target.value } })} /><code>{document.appearance.borderColor}</code></label>
+                  <label className="range-field"><span>Corner radius: {document.appearance.borderRadius}px</span><input type="range" min="0" max="40" value={document.appearance.borderRadius} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, borderRadius: Number(event.target.value) } })} /></label>
+                  <label className="range-field"><span>Spacing: {document.appearance.contentSpacing}px</span><input type="range" min="4" max="48" value={document.appearance.contentSpacing} onChange={(event) => updateDocument({ ...document, appearance: { ...document.appearance, contentSpacing: Number(event.target.value) } })} /></label>
                 </article>
               </div>
               <MediaEditor
@@ -984,6 +1141,104 @@ export default function Studio({
                   </select>
                 </label>
               </div>
+              {advancedMode === "expert" && (
+                <>
+                  <div className="section-heading embedded-heading">
+                    <div>
+                      <h2>Page overrides</h2>
+                      <p>Override the accent and panel radius for a specific page.</p>
+                    </div>
+                  </div>
+                  <div className="item-stack">
+                    {document.pages.map((page) => {
+                      const style = document.appearance.pageStyles[page.id] || {};
+                      return (
+                        <article className="editor-item compact-item" key={page.id}>
+                          <strong>{page.icon} {page.label}</strong>
+                          <div className="editor-grid">
+                            <Field label="Accent override" value={style.accent || ""} placeholder="#24c8c0" onChange={(accent) => updateDocument({ ...document, appearance: { ...document.appearance, pageStyles: { ...document.appearance.pageStyles, [page.id]: { ...style, accent } } } })} />
+                            <Field label="Corner radius" type="number" min={0} value={style.borderRadius ?? ""} onChange={(value) => updateDocument({ ...document, appearance: { ...document.appearance, pageStyles: { ...document.appearance.pageStyles, [page.id]: { ...style, borderRadius: value === "" ? undefined : Number(value) } } } })} />
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                  <div className="section-heading embedded-heading">
+                    <div>
+                      <h2>Section overrides</h2>
+                      <p>Each content block can override color, radius and padding.</p>
+                    </div>
+                  </div>
+                  <div className="item-stack">
+                    {document.blocks.map((block, index) => (
+                      <article className="editor-item compact-item" key={block.id}>
+                        <strong>{block.icon} {block.title}</strong>
+                        <div className="editor-grid">
+                          <Field label="Background" value={block.style?.background || ""} placeholder="#ffffff" onChange={(background) => updateBlock(index, { ...block, style: { ...block.style, background } })} />
+                          <Field label="Text color" value={block.style?.textColor || ""} placeholder="#073b50" onChange={(textColor) => updateBlock(index, { ...block, style: { ...block.style, textColor } })} />
+                          <Field label="Corner radius" type="number" min={0} value={block.style?.borderRadius ?? ""} onChange={(value) => updateBlock(index, { ...block, style: { ...block.style, borderRadius: value === "" ? undefined : Number(value) } })} />
+                          <Field label="Padding" type="number" min={0} value={block.style?.padding ?? ""} onChange={(value) => updateBlock(index, { ...block, style: { ...block.style, padding: value === "" ? undefined : Number(value) } })} />
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
+          {tab === "publish" && (
+            <>
+              <div className="section-heading">
+                <div>
+                  <h1>Publish to GitHub</h1>
+                  <p>The fine-grained token stays in memory and is forgotten when this page closes.</p>
+                </div>
+              </div>
+              {serverMode ? (
+                <div className="license-note">
+                  GitHub publishing is available in the static edition.
+                </div>
+              ) : (
+                <div className="editor-item">
+                  <div className="editor-grid">
+                    <Field label="Repository owner" value={github.owner} onChange={(owner) => setGithub({ ...github, owner })} />
+                    <Field label="Repository name" value={github.repository} onChange={(repository) => setGithub({ ...github, repository })} />
+                    <Field label="Branch" value={github.branch} onChange={(branch) => setGithub({ ...github, branch })} />
+                    <Field label="Fine-grained token" type="password" value={github.token} onChange={(token) => setGithub({ ...github, token })} />
+                  </div>
+                  <p className="setup-note">
+                    Give the token Contents read/write access only to this repository. MyHome never saves it.
+                  </p>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    disabled={busy || dirty}
+                    onClick={async () => {
+                      setBusy(true);
+                      setMessage("");
+                      try {
+                        const envelope = await loadOwnerEnvelope();
+                        if (!envelope) throw new Error("Encrypted owner configuration not found.");
+                        await publishToGitHub({
+                          ...github,
+                          document,
+                          envelope,
+                        });
+                        setGithub((current) => ({ ...current, token: "" }));
+                        setMessage("Published directly to GitHub. The token was forgotten.");
+                      } catch (error) {
+                        setMessage(error instanceof Error ? error.message : "GitHub publishing failed.");
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                  >
+                    Commit to current branch
+                  </button>
+                  {dirty && <p className="form-message">Save changes before publishing.</p>}
+                </div>
+              )}
             </>
           )}
 

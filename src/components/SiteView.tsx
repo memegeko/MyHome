@@ -314,7 +314,7 @@ export default function SiteView({
   onOpenStudio: () => void;
 }) {
   const enabledPages = useMemo(
-    () => document.pages.filter((page) => page.enabled),
+    () => document.pages.filter((page) => page.enabled && !page.private),
     [document.pages],
   );
   const [activePageId, setActivePageId] = useState(
@@ -329,6 +329,7 @@ export default function SiteView({
   const socialLinks = useMemo(
     () =>
       document.socials
+        .filter((social) => !social.private)
         .map((social) => ({ social, href: safeHref(social.url) }))
         .filter(({ href }) => Boolean(href)),
     [document.socials],
@@ -343,11 +344,22 @@ export default function SiteView({
   const ownerAllowsEffects = document.appearance.animationsEnabled;
   const showEffects = effectsEnabled && ownerAllowsEffects;
   const activeBlocks = document.blocks.filter(
-    (block) => block.enabled && block.pageId === activePageId,
+    (block) => block.enabled && block.pageId === activePageId && !block.private,
   );
   const background = safeMediaSource(document.appearance.background.src);
   const backgroundStyle: React.CSSProperties = {
     "--accent": document.appearance.accent,
+    "--site-font": document.appearance.fontFamily,
+    "--heading-font": document.appearance.headingFontFamily,
+    "--site-text": document.appearance.textColor,
+    "--panel-color": document.appearance.panelColor,
+    "--panel-border": document.appearance.borderColor,
+    "--panel-border-width": `${document.appearance.borderWidth}px`,
+    "--panel-radius": `${document.appearance.borderRadius}px`,
+    "--content-gap": `${document.appearance.contentSpacing}px`,
+    "--animation-speed": String(document.appearance.animationSpeed),
+    "--animation-easing": document.appearance.animationEasing,
+    "--particle-size": `${document.appearance.particleSize}px`,
     "--effect-strength": String(
       showEffects ? document.appearance.animationIntensity / 100 : 0,
     ),
@@ -383,9 +395,12 @@ export default function SiteView({
         <span className="hill hill-one" />
         <span className="hill hill-two" />
       </div>
-      {showEffects && (
-        <div className="floating-bubbles" aria-hidden="true">
-          {Array.from({ length: 14 }, (_, index) => (
+      {showEffects && document.appearance.particleType !== "none" && (
+        <div
+          className={`floating-bubbles particles-${document.appearance.particleType} direction-${document.appearance.particleDirection}`}
+          aria-hidden="true"
+        >
+          {Array.from({ length: document.appearance.particleAmount }, (_, index) => (
             <span key={index} style={{ "--bubble-index": index } as React.CSSProperties} />
           ))}
         </div>
@@ -491,8 +506,19 @@ export default function SiteView({
           </section>
 
           {activeBlocks.length ? (
-            activeBlocks.map((block) => (
-              <section className="content-panel glass-panel" key={block.id}>
+            activeBlocks.map((block) => {
+              const pageStyle = document.appearance.pageStyles[activePageId] || {};
+              const style = {
+                "--accent": pageStyle.accent || document.appearance.accent,
+                background: block.style?.background || undefined,
+                color: block.style?.textColor || undefined,
+                borderColor: block.style?.borderColor || undefined,
+                borderWidth: block.style?.borderWidth,
+                borderRadius: block.style?.borderRadius,
+                padding: block.style?.padding,
+                fontFamily: block.style?.fontFamily || undefined,
+              } as React.CSSProperties;
+              return <section className="content-panel glass-panel" key={block.id} style={style}>
                 <div className="panel-title">
                   <span>{block.icon}</span>
                   {block.title}
@@ -500,8 +526,8 @@ export default function SiteView({
                 <div className="panel-body">
                   <BlockBody block={block} />
                 </div>
-              </section>
-            ))
+              </section>;
+            })
           ) : (
             <section className="content-panel glass-panel">
               <div className="panel-title">This page is empty</div>

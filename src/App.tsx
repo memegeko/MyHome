@@ -6,10 +6,16 @@ import { developerConfig } from "./config/developer";
 import { createBlankDocument } from "./defaults";
 import {
   loadDocument,
+  loadOwnerEnvelope,
   runtimeMode,
   saveDocument,
+  saveOwnerEnvelope,
 } from "./runtime";
-import type { SiteDocument } from "./types";
+import {
+  createOwnerEnvelope,
+  unlockOwnerEnvelope,
+} from "./ownerCrypto";
+import type { OwnerEnvelope, SiteDocument } from "./types";
 
 type AppRoute = "site" | "setup" | "admin";
 
@@ -40,31 +46,53 @@ function navigate(route: AppRoute) {
 }
 
 function OwnerLogin({
+  serverMode,
   onAuthenticated,
 }: {
-  onAuthenticated: () => void;
+  serverMode: boolean;
+  onAuthenticated: (
+    document?: SiteDocument,
+    secret?: string,
+    envelope?: OwnerEnvelope,
+    recovery?: boolean,
+  ) => void;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [recoveryMode, setRecoveryMode] = useState(false);
 
   const login = async (event: React.FormEvent) => {
     event.preventDefault();
     setBusy(true);
     setMessage("");
     try {
-      const response = await fetch(`${developerConfig.apiBase}/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const payload = (await response.json().catch(() => ({}))) as {
-        error?: string;
-      };
-      if (!response.ok) throw new Error(payload.error || "Login failed.");
-      onAuthenticated();
+      if (serverMode) {
+        const response = await fetch(`${developerConfig.apiBase}/login`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const payload = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        if (!response.ok) throw new Error(payload.error || "Login failed.");
+        onAuthenticated();
+      } else {
+        const envelope = await loadOwnerEnvelope();
+        if (!envelope) {
+          throw new Error("Owner configuration not found. Run setup first.");
+        }
+        const unlocked = await unlockOwnerEnvelope(
+          envelope,
+          email,
+          password,
+          recoveryMode,
+        );
+        onAuthenticated(unlocked, password, envelope, recoveryMode);
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed.");
     } finally {
@@ -77,8 +105,12 @@ function OwnerLogin({
       <form className="owner-login glass-panel" onSubmit={login}>
         <span className="brand-orb">⌂</span>
         <h1>MyHome owner login</h1>
-        <p>Only the single owner account can open this editor.</p>
-        <label>
+        <p>
+          {serverMode
+            ? "Only the single owner account can open this editor."
+            : "Unlock the encrypted owner configuration to open Studio."}
+        </p>
+        {!recoveryMode && <label>
           <span>Email</span>
           <input
             type="email"
@@ -86,9 +118,9 @@ function OwnerLogin({
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
-        </label>
+        </label>}
         <label>
-          <span>Password</span>
+          <span>{recoveryMode ? "Recovery key" : "Password"}</span>
           <input
             type="password"
             autoComplete="current-password"
@@ -98,8 +130,21 @@ function OwnerLogin({
         </label>
         {message && <p className="form-message error">{message}</p>}
         <button className="primary-button" type="submit" disabled={busy}>
-          {busy ? "Signing in…" : "Sign in"}
+          {busy ? "Unlocking…" : recoveryMode ? "Recover access" : "Sign in"}
         </button>
+        {!serverMode && (
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => {
+              setRecoveryMode((current) => !current);
+              setPassword("");
+              setMessage("");
+            }}
+          >
+            {recoveryMode ? "Use email and password" : "Use recovery key"}
+          </button>
+        )}
         <button
           className="secondary-button"
           type="button"
@@ -120,8 +165,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [authenticated, setAuthenticated] = useState(
-    runtimeMode === "static",
+    false,
   );
+  const [staticSecret, setStaticSecret] = useState("");
+  const [ownerEnvelope, setOwnerEnvelope] = useState<OwnerEnvelope | null>(null);
 
   useEffect(() => {
     const onHashChange = () => setRoute(routeFromLocation());
@@ -182,7 +229,25 @@ export default function App() {
       setAuthenticated(true);
       setDocument(nextDocument);
     } else {
-      setDocument(await saveDocument(nextDocument));
+      if (!owner) throw new Error("Owner details are required.");
+      const configured = await saveDocument(nextDocument);
+      const envelope = await createOwnerEnvelope(
+        owner.email,
+        owner.password,
+        owner.recoveryKey,
+        owner.sessionPreference,
+        configured,
+      );
+      await saveOwnerEnvelope(envelope);
+      setOwnerEnvelope(envelope);
+      setStaticSecret(owner.password);
+      setAuthenticated(true);
+      setDocument(configured);
+      if (owner.sessionPreference === "session") {
+        sessionStorage.setItem("myhome:owner-session", "active");
+      } else if (owner.sessionPreference === "until-logout") {
+        localStorage.setItem("myhome:owner-session", "active");
+      }
     }
     navigate("site");
     setRoute("site");
@@ -190,6 +255,22 @@ export default function App() {
 
   const save = async (nextDocument: SiteDocument) => {
     const saved = await saveDocument(nextDocument);
+    if (runtimeMode === "static") {
+      if (!ownerEnvelope || !staticSecret) {
+        throw new Error("Sign in again before saving encrypted changes.");
+      }
+      const refreshed = await createOwnerEnvelope(
+        ownerEnvelope.email,
+        staticSecret,
+        staticSecret,
+        ownerEnvelope.sessionPreference,
+        saved,
+      );
+      // Preserve the independent recovery ciphertext until recovery rotation is added.
+      refreshed.recovery = ownerEnvelope.recovery;
+      await saveOwnerEnvelope(refreshed);
+      setOwnerEnvelope(refreshed);
+    }
     setDocument(saved);
   };
 
@@ -228,8 +309,18 @@ export default function App() {
   }
 
   if (route === "admin") {
-    if (runtimeMode === "server" && !authenticated) {
-      return <OwnerLogin onAuthenticated={() => setAuthenticated(true)} />;
+    if (!authenticated) {
+      return (
+        <OwnerLogin
+          serverMode={runtimeMode === "server"}
+          onAuthenticated={(unlocked, secret, envelope, recovery) => {
+            setAuthenticated(true);
+            if (unlocked) setDocument(unlocked);
+            if (secret && !recovery) setStaticSecret(secret);
+            if (envelope) setOwnerEnvelope(envelope);
+          }}
+        />
+      );
     }
     return (
       <Studio
@@ -237,10 +328,17 @@ export default function App() {
         serverMode={runtimeMode === "server"}
         onSave={save}
         onLogout={async () => {
-          await fetch(`${developerConfig.apiBase}/logout`, {
-            method: "POST",
-            credentials: "include",
-          });
+          if (runtimeMode === "server") {
+            await fetch(`${developerConfig.apiBase}/logout`, {
+              method: "POST",
+              credentials: "include",
+            });
+          } else {
+            sessionStorage.removeItem("myhome:owner-session");
+            localStorage.removeItem("myhome:owner-session");
+            setStaticSecret("");
+            setOwnerEnvelope(null);
+          }
           setAuthenticated(false);
           navigate("site");
           setRoute("site");

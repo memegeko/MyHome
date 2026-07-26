@@ -97,6 +97,21 @@ export const aeroAppearance = (): AppearanceSettings => ({
   backgroundPosition: "center",
   animationsEnabled: true,
   animationIntensity: 55,
+  animationSpeed: 1,
+  animationEasing: "ease-in-out",
+  particleType: "bubbles",
+  particleAmount: 14,
+  particleSize: 24,
+  particleDirection: "up",
+  fontFamily: "Segoe UI, sans-serif",
+  headingFontFamily: "Segoe UI, sans-serif",
+  textColor: "#073b50",
+  panelColor: "#dffaff",
+  borderColor: "#ffffff",
+  borderWidth: 1,
+  borderRadius: 14,
+  contentSpacing: 16,
+  pageStyles: {},
 });
 
 export function createBlankDocument(): SiteDocument {

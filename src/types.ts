@@ -10,6 +10,8 @@ export type SocialLink = {
   label: string;
   url: string;
   icon: string;
+  private?: boolean;
+  privatePlaceholder?: string;
 };
 
 export type Profile = {
@@ -26,6 +28,8 @@ export type PageDefinition = {
   label: string;
   icon: string;
   enabled: boolean;
+  private?: boolean;
+  privatePlaceholder?: string;
 };
 
 export type ProjectItem = {
@@ -93,6 +97,20 @@ type BlockBase = {
   title: string;
   icon: string;
   enabled: boolean;
+  private?: boolean;
+  privatePlaceholder?: string;
+  style?: Partial<BlockStyleSettings>;
+};
+
+export type BlockStyleSettings = {
+  accent: string;
+  background: string;
+  textColor: string;
+  borderColor: string;
+  borderWidth: number;
+  borderRadius: number;
+  padding: number;
+  fontFamily: string;
 };
 
 export type AboutBlock = BlockBase & {
@@ -150,6 +168,21 @@ export type AppearanceSettings = {
   backgroundPosition: "center" | "top" | "bottom" | "left" | "right";
   animationsEnabled: boolean;
   animationIntensity: number;
+  animationSpeed: number;
+  animationEasing: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out";
+  particleType: "bubbles" | "sparkles" | "snow" | "none";
+  particleAmount: number;
+  particleSize: number;
+  particleDirection: "up" | "down" | "left" | "right";
+  fontFamily: string;
+  headingFontFamily: string;
+  textColor: string;
+  panelColor: string;
+  borderColor: string;
+  borderWidth: number;
+  borderRadius: number;
+  contentSpacing: number;
+  pageStyles: Record<string, Partial<BlockStyleSettings>>;
 };
 
 export type SiteDocument = {
@@ -171,6 +204,29 @@ export type ThemePreset = {
   name: string;
   description: string;
   appearance: AppearanceSettings;
+};
+
+export type StaticSessionPreference =
+  | "always"
+  | "session"
+  | "until-logout";
+
+export type OwnerEnvelope = {
+  format: "myhome-owner";
+  version: 1;
+  email: string;
+  sessionPreference: StaticSessionPreference;
+  password: {
+    salt: string;
+    iv: string;
+    ciphertext: string;
+  };
+  recovery: {
+    salt: string;
+    iv: string;
+    ciphertext: string;
+  };
+  updatedAt: string;
 };
 
 export type RuntimeMode = "static" | "server";

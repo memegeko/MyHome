@@ -1,10 +1,11 @@
 import { developerConfig } from "./config/developer";
-import { createBlankDocument } from "./defaults";
-import type { RuntimeMode, SiteDocument } from "./types";
+import { aeroAppearance, createBlankDocument } from "./defaults";
+import type { OwnerEnvelope, RuntimeMode, SiteDocument } from "./types";
 
 const databaseName = "myhome-studio";
 const storeName = "documents";
 const documentKey = "current";
+const ownerKey = "owner-envelope";
 
 export const runtimeMode: RuntimeMode =
   import.meta.env.VITE_MYHOME_MODE === "server" ? "server" : "static";
@@ -22,6 +23,17 @@ function isSiteDocument(value: unknown): value is SiteDocument {
     Array.isArray(document.socials) &&
     Boolean(document.appearance)
   );
+}
+
+function normalizeDocument(document: SiteDocument): SiteDocument {
+  return {
+    ...document,
+    appearance: {
+      ...aeroAppearance(),
+      ...document.appearance,
+      pageStyles: document.appearance.pageStyles || {},
+    },
+  };
 }
 
 function openStudioDatabase() {
@@ -66,6 +78,60 @@ async function writeLocalDocument(document: SiteDocument) {
   });
 }
 
+async function readLocalValue<T>(key: string): Promise<T | null> {
+  const database = await openStudioDatabase();
+  return new Promise<T | null>((resolve, reject) => {
+    const transaction = database.transaction(storeName, "readonly");
+    const request = transaction.objectStore(storeName).get(key);
+    request.onsuccess = () => resolve((request.result as T | undefined) ?? null);
+    request.onerror = () => reject(request.error);
+    transaction.oncomplete = () => database.close();
+  });
+}
+
+async function writeLocalValue<T>(key: string, value: T) {
+  const database = await openStudioDatabase();
+  return new Promise<void>((resolve, reject) => {
+    const transaction = database.transaction(storeName, "readwrite");
+    transaction.objectStore(storeName).put(value, key);
+    transaction.oncomplete = () => {
+      database.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error);
+    };
+  });
+}
+
+function isOwnerEnvelope(value: unknown): value is OwnerEnvelope {
+  const envelope = value as Partial<OwnerEnvelope> | null;
+  return Boolean(
+    envelope &&
+      envelope.format === "myhome-owner" &&
+      envelope.version === 1 &&
+      envelope.email &&
+      envelope.password?.ciphertext &&
+      envelope.recovery?.ciphertext,
+  );
+}
+
+export async function loadOwnerEnvelope(): Promise<OwnerEnvelope | null> {
+  const local = await readLocalValue<OwnerEnvelope>(ownerKey).catch(() => null);
+  if (isOwnerEnvelope(local)) return local;
+  const response = await fetch("./myhome.owner.json", { cache: "no-store" }).catch(
+    () => null,
+  );
+  if (!response?.ok) return null;
+  const payload = (await response.json().catch(() => null)) as unknown;
+  return isOwnerEnvelope(payload) ? payload : null;
+}
+
+export async function saveOwnerEnvelope(envelope: OwnerEnvelope) {
+  await writeLocalValue(ownerKey, envelope);
+}
+
 export async function loadDocument(): Promise<SiteDocument> {
   if (runtimeMode === "server") {
     const response = await fetch(`${developerConfig.apiBase}/site`, {
@@ -74,11 +140,11 @@ export async function loadDocument(): Promise<SiteDocument> {
     });
     if (response.ok) {
       const payload = (await response.json()) as { document?: unknown };
-      if (isSiteDocument(payload.document)) return payload.document;
+      if (isSiteDocument(payload.document)) return normalizeDocument(payload.document);
     }
   } else {
     const local = await readLocalDocument().catch(() => null);
-    if (local) return local;
+    if (local) return normalizeDocument(local);
   }
 
   const response = await fetch(developerConfig.contentPath, {
@@ -86,7 +152,7 @@ export async function loadDocument(): Promise<SiteDocument> {
   });
   if (response.ok) {
     const payload = (await response.json()) as unknown;
-    if (isSiteDocument(payload)) return payload;
+    if (isSiteDocument(payload)) return normalizeDocument(payload);
   }
   return createBlankDocument();
 }

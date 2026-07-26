@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
-import { aeroThemePreset, createBlankDocument } from "../defaults";
-import type { SiteDocument } from "../types";
+import { createBlankDocument } from "../defaults";
+import { generateRecoveryKey } from "../ownerCrypto";
+import type { SiteDocument, StaticSessionPreference } from "../types";
 
 export type OwnerSetup = {
   email: string;
   password: string;
+  recoveryKey: string;
+  sessionPreference: StaticSessionPreference;
 };
 
 const optionalModules = [
@@ -52,8 +55,14 @@ export default function SetupWizard({
 }) {
   const [step, setStep] = useState(0);
   const [document, setDocument] = useState(createBlankDocument);
-  const [owner, setOwner] = useState<OwnerSetup>({ email: "", password: "" });
+  const [owner, setOwner] = useState<OwnerSetup>({
+    email: "",
+    password: "",
+    recoveryKey: generateRecoveryKey(),
+    sessionPreference: "session",
+  });
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [recoveryConfirmed, setRecoveryConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -64,6 +73,14 @@ export default function SetupWizard({
       ).length,
     [document.pages],
   );
+  const passwordStrength = useMemo(() => {
+    let score = 0;
+    if (owner.password.length >= 8) score += 1;
+    if (owner.password.length >= 12) score += 1;
+    if (/[A-Z]/.test(owner.password) && /[a-z]/.test(owner.password)) score += 1;
+    if (/\d/.test(owner.password) && /[^A-Za-z0-9]/.test(owner.password)) score += 1;
+    return score;
+  }, [owner.password]);
 
   const canContinue =
     step === 0
@@ -74,10 +91,10 @@ export default function SetupWizard({
       : step === 1
         ? true
         : step === 2
-          ? !serverMode ||
-            (owner.email.includes("@") &&
-              owner.password.length >= 12 &&
-              owner.password === confirmPassword)
+          ? owner.email.includes("@") &&
+            owner.password.length >= 8 &&
+            owner.password === confirmPassword &&
+            (serverMode || recoveryConfirmed)
           : true;
 
   const togglePage = (pageId: string) => {
@@ -99,7 +116,7 @@ export default function SetupWizard({
           configured: true,
           updatedAt: new Date().toISOString(),
         },
-        serverMode ? owner : undefined,
+        owner,
       );
     } catch (error) {
       setMessage(
@@ -133,7 +150,7 @@ export default function SetupWizard({
         </header>
 
         <ol className="setup-steps" aria-label="Setup progress">
-          {["Identity", "Modules", serverMode ? "Owner" : "Style", "Finish"].map(
+          {["Identity", "Modules", "Owner", "Finish"].map(
             (label, index) => (
               <li
                 key={label}
@@ -271,15 +288,16 @@ export default function SetupWizard({
             </>
           )}
 
-          {step === 2 && serverMode && (
+          {step === 2 && (
             <>
               <div className="setup-intro">
                 <span>03</span>
                 <div>
                   <h1>Create the owner account</h1>
                   <p>
-                    MyHome allows one owner only. The password is hashed before
-                    it is stored and is never written to your site configuration.
+                    {serverMode
+                      ? "MyHome allows one owner only. Your password is hashed by the server."
+                      : "Your owner configuration is encrypted in this browser before it is stored or published."}
                   </p>
                 </div>
               </div>
@@ -296,7 +314,7 @@ export default function SetupWizard({
                   />
                 </label>
                 <label>
-                  <span>Password (12+ characters)</span>
+                  <span>Password</span>
                   <input
                     type="password"
                     value={owner.password}
@@ -304,6 +322,14 @@ export default function SetupWizard({
                       setOwner({ ...owner, password: event.target.value })
                     }
                   />
+                  <span className={`password-strength strength-${passwordStrength}`}>
+                    Strength: {["Very weak", "Weak", "Fair", "Good", "Strong"][passwordStrength]}
+                  </span>
+                  {owner.password && passwordStrength < 3 && (
+                    <small className="inline-message">
+                      This password is easier to guess offline. Use 12+ characters with mixed character types.
+                    </small>
+                  )}
                 </label>
                 <label>
                   <span>Confirm password</span>
@@ -315,49 +341,47 @@ export default function SetupWizard({
                     }
                   />
                 </label>
+                {!serverMode && (
+                  <>
+                    <label className="wide">
+                      <span>When should MyHome ask you to sign in?</span>
+                      <select
+                        value={owner.sessionPreference}
+                        onChange={(event) =>
+                          setOwner({
+                            ...owner,
+                            sessionPreference: event.target
+                              .value as StaticSessionPreference,
+                          })
+                        }
+                      >
+                        <option value="always">Every time Studio opens</option>
+                        <option value="session">Remember for this browser session</option>
+                        <option value="until-logout">Stay signed in until I log out</option>
+                      </select>
+                    </label>
+                    <div className="recovery-key wide">
+                      <span>Recovery key — save this somewhere safe</span>
+                      <code>{owner.recoveryKey}</code>
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => void navigator.clipboard.writeText(owner.recoveryKey)}
+                      >
+                        Copy recovery key
+                      </button>
+                      <label className="check-field">
+                        <input
+                          type="checkbox"
+                          checked={recoveryConfirmed}
+                          onChange={(event) => setRecoveryConfirmed(event.target.checked)}
+                        />
+                        I saved my recovery key
+                      </label>
+                    </div>
+                  </>
+                )}
               </div>
-            </>
-          )}
-
-          {step === 2 && !serverMode && (
-            <>
-              <div className="setup-intro">
-                <span>03</span>
-                <div>
-                  <h1>Pick the starting style</h1>
-                  <p>
-                    The included Aero Glass preset uses CSS only—no personal
-                    writing and no copyrighted artwork.
-                  </p>
-                </div>
-              </div>
-              <article className="theme-choice is-selected">
-                <div className="theme-swatch">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <div>
-                  <strong>{aeroThemePreset.name}</strong>
-                  <p>{aeroThemePreset.description}</p>
-                  <label>
-                    Accent
-                    <input
-                      type="color"
-                      value={document.appearance.accent}
-                      onChange={(event) =>
-                        setDocument({
-                          ...document,
-                          appearance: {
-                            ...document.appearance,
-                            accent: event.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </label>
-                </div>
-              </article>
             </>
           )}
 

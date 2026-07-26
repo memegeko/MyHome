@@ -44,7 +44,8 @@ a {
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: var(--panel-border-width, 1px) solid var(--panel-border, rgba(255, 255, 255, 0.9));
+  border-radius: var(--panel-radius, 8px);
   background:
     linear-gradient(
       135deg,
@@ -144,6 +145,8 @@ button:disabled,
   min-height: 100vh;
   padding: 20px max(16px, calc((100vw - 1120px) / 2)) 32px;
   overflow: hidden;
+  color: var(--site-text, #073b50);
+  font-family: var(--site-font, "Segoe UI", sans-serif);
   background:
     linear-gradient(180deg, #37a8ed 0%, #aef2ff 51%, #83db7d 52%, #b7f085 100%);
   background-attachment: fixed;
@@ -239,7 +242,7 @@ button:disabled,
 }
 
 .floating-bubbles span {
-  --size: calc(16px + (var(--bubble-index) * 3px));
+  --size: calc(var(--particle-size, 24px) + (var(--bubble-index) * 0.8px));
   position: absolute;
   bottom: -80px;
   left: calc(4% + (var(--bubble-index) * 7%));
@@ -251,8 +254,36 @@ button:disabled,
     radial-gradient(circle at 28% 25%, white 0 5%, transparent 7%),
     linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(130, 238, 255, 0.18));
   box-shadow: inset 0 0 7px rgba(255, 255, 255, 0.65);
-  animation: bubble-rise calc(11s + var(--bubble-index) * 0.65s) linear infinite;
+  animation: bubble-rise calc((11s + var(--bubble-index) * 0.65s) / var(--animation-speed, 1)) var(--animation-easing, linear) infinite;
   animation-delay: calc(var(--bubble-index) * -1.1s);
+}
+
+.particles-sparkles span {
+  border: 0;
+  border-radius: 0;
+  background: white;
+  box-shadow: 0 0 12px 3px color-mix(in srgb, var(--accent) 60%, white);
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+}
+
+.particles-snow span {
+  border: 0;
+  background: white;
+  box-shadow: 0 0 8px rgba(255, 255, 255, .8);
+}
+
+.direction-down span {
+  top: -80px;
+  bottom: auto;
+  animation-direction: reverse;
+}
+
+.direction-left span {
+  rotate: -90deg;
+}
+
+.direction-right span {
+  rotate: 90deg;
 }
 
 @keyframes bubble-rise {
@@ -360,15 +391,22 @@ button:disabled,
 .site-layout {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
-  gap: 14px;
-  margin-top: 14px;
+  gap: var(--content-gap, 14px);
+  margin-top: var(--content-gap, 14px);
 }
 
 .profile-column,
 .content-column {
   display: grid;
   align-content: start;
-  gap: 12px;
+  gap: var(--content-gap, 12px);
+}
+
+.site-brand strong,
+.site-world h1,
+.site-world h2,
+.site-world h3 {
+  font-family: var(--heading-font, var(--site-font));
 }
 
 .profile-card,
@@ -1361,6 +1399,25 @@ button:disabled,
   line-height: 1.5;
 }
 
+.recovery-key {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid rgba(65, 130, 151, .45);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .55);
+}
+
+.recovery-key code {
+  padding: 10px;
+  color: #084f68;
+  border: 1px dashed #5f9aae;
+  background: rgba(255, 255, 255, .72);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-align: center;
+}
+
 .setup-footer {
   display: flex;
   justify-content: space-between;
@@ -1764,6 +1821,28 @@ button:disabled,
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
+}
+
+.mode-switch {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #7ca9b8;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .48);
+}
+
+.mode-switch button {
+  padding: 7px 13px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mode-switch button.is-active {
+  color: white;
+  background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 75%, #075f81));
 }
 
 .appearance-card,
