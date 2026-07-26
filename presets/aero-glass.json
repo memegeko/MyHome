@@ -1,0 +1,20 @@
+{
+  "format": "myhome-theme",
+  "version": 1,
+  "name": "Aero Glass",
+  "description": "A bright glass-and-sky preset built entirely from CSS, with no personal text or copyrighted images.",
+  "appearance": {
+    "themeId": "aero-glass",
+    "accent": "#24c8c0",
+    "background": {
+      "src": "",
+      "alt": "",
+      "credit": "",
+      "sourceUrl": ""
+    },
+    "backgroundMode": "cover",
+    "backgroundPosition": "center",
+    "animationsEnabled": true,
+    "animationIntensity": 55
+  }
+}
