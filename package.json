@@ -1,0 +1,32 @@
+{
+  "name": "myhome",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build",
+    "build:static": "tsc -b && vite build",
+    "build:server": "npm run typecheck && vite build --mode server",
+    "dev:server": "npm run build:server && wrangler dev",
+    "deploy:server": "npm run build:server && wrangler deploy",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false && tsc -p tsconfig.worker.json --pretty false",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.2.0",
+    "vitest": "^4.0.0",
+    "wrangler": "4.50.0"
+  }
+}
