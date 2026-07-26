@@ -70,7 +70,7 @@ The included Aero Glass preset is a neutral recreation of the visual direction
 used by Geko's personal site. It uses only CSS-generated scenery and interface
 effects. Personal text and copyrighted images are not included in the preset.
 
-![Geko's customized MyHome-inspired Aero profile](docs/screenshots/geko-miku-space.jpg)
+![Geko's customized MyHome-inspired Aero profile](docs/screenshots/geko-miku-space.svg)
 
 Documentation screenshots of the original personalized site may appear under
 `docs/screenshots/` for reference only. Artwork visible inside those
