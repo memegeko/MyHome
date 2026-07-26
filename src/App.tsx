@@ -10,6 +10,7 @@ import {
   runtimeMode,
   saveDocument,
   saveOwnerEnvelope,
+  showcaseMode,
 } from "./runtime";
 import {
   createOwnerEnvelope,
@@ -354,6 +355,7 @@ export default function App() {
   return (
     <SiteView
       document={document}
+      showcaseMode={showcaseMode}
       onOpenStudio={() => {
         navigate("admin");
         setRoute("admin");

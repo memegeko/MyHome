@@ -1,5 +1,7 @@
 # Server edition: Cloudflare Workers
 
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+
 The first server adapter uses:
 
 - a Cloudflare Worker for the application and API;

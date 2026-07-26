@@ -1,5 +1,7 @@
 # Install MyHome
 
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+
 MyHome has two editions:
 
 - **Static** — easiest; works on GitHub Pages and ordinary web hosting.

@@ -15,6 +15,8 @@ tools, flexible content blocks and both static and server deployments.
 [![License](https://img.shields.io/badge/license-No--Sale%20Share--Alike-25bfb7)](LICENSE)
 
 [Live setup](https://memegeko.github.io/MyHome/) ·
+[Full showcase](https://memegeko.github.io/MyHome/?demo=showcase) ·
+[Example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip) ·
 [Installation](docs/getting-started/INSTALL.md) ·
 [Static guide](docs/deployment/STATIC.md) ·
 [Server guide](docs/deployment/SERVER.md)
@@ -41,6 +43,10 @@ blank and opens a first-time setup wizard.
 - 🚀 GitHub Pages and Cloudflare Workers support
 
 ## 🚀 Fastest installation
+
+Want to explore first? Open the
+[complete live showcase](https://memegeko.github.io/MyHome/?demo=showcase) or
+[download its importable ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip).
 
 ### GitHub Pages — no terminal required
 

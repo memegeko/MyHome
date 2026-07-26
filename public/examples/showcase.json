@@ -1,0 +1,258 @@
+{
+  "formatVersion": 1,
+  "configured": true,
+  "siteTitle": "Aero Home",
+  "siteSubtitle": "a complete MyHome showcase",
+  "profile": {
+    "displayName": "Nova",
+    "username": "@aero-nova",
+    "tagline": "Building tiny worlds on the web",
+    "status": "Customizing MyHome",
+    "bio": "Welcome to a neutral example installation. Every page, card and image can be replaced in Studio.",
+    "avatar": {
+      "src": "./examples/assets/avatar.png",
+      "alt": "Abstract blue and turquoise MyHome avatar",
+      "credit": "MyHome showcase artwork",
+      "sourceUrl": "https://github.com/memegeko/MyHome"
+    }
+  },
+  "socials": [
+    {
+      "id": "github",
+      "label": "MyHome on GitHub",
+      "url": "https://github.com/memegeko/MyHome",
+      "icon": "⌘"
+    },
+    {
+      "id": "install",
+      "label": "Installation guide",
+      "url": "https://github.com/memegeko/MyHome/blob/main/docs/getting-started/INSTALL.md",
+      "icon": "⇩"
+    }
+  ],
+  "pages": [
+    { "id": "home", "label": "Home", "icon": "⌂", "enabled": true },
+    { "id": "projects", "label": "Projects", "icon": "▦", "enabled": true },
+    { "id": "records", "label": "Records", "icon": "♫", "enabled": true },
+    { "id": "anime", "label": "Anime", "icon": "★", "enabled": true },
+    { "id": "gallery", "label": "Gallery", "icon": "▧", "enabled": true },
+    { "id": "links", "label": "People & places", "icon": "☻", "enabled": true }
+  ],
+  "blocks": [
+    {
+      "id": "about",
+      "type": "about",
+      "pageId": "home",
+      "title": "About this example",
+      "icon": "☺",
+      "enabled": true,
+      "body": "This showcase contains every main MyHome module.\nDownload the example ZIP, import it in Studio and replace everything with your own style."
+    },
+    {
+      "id": "getting-started",
+      "type": "custom",
+      "pageId": "home",
+      "title": "Make it yours",
+      "icon": "✦",
+      "enabled": true,
+      "body": "Rename tabs, reorder blocks, upload backgrounds, tune particles and create private sections from the owner Studio.",
+      "image": {
+        "src": "./examples/assets/gallery-aero.png",
+        "alt": "Abstract Aero landscape",
+        "credit": "MyHome showcase artwork",
+        "sourceUrl": "https://github.com/memegeko/MyHome"
+      },
+      "linkLabel": "Read the installation guide",
+      "linkUrl": "https://github.com/memegeko/MyHome/blob/main/docs/getting-started/INSTALL.md"
+    },
+    {
+      "id": "projects",
+      "type": "projects",
+      "pageId": "projects",
+      "title": "Projects",
+      "icon": "▦",
+      "enabled": true,
+      "items": [
+        {
+          "id": "project-aero",
+          "title": "Aero Workspace",
+          "description": "A fictional desktop environment experiment used to demonstrate project cards, tags, links and uploaded cover art.",
+          "status": "In progress",
+          "url": "https://memegeko.github.io/MyHome/?demo=showcase",
+          "sourceUrl": "https://github.com/memegeko/MyHome",
+          "tags": ["Aero", "Design", "Web"],
+          "cover": {
+            "src": "./examples/assets/project-aero.png",
+            "alt": "Blue Aero Workspace project cover",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        },
+        {
+          "id": "project-media",
+          "title": "Media Library",
+          "description": "A second example showing how different projects can have their own artwork, state and source links.",
+          "status": "Finished",
+          "url": "https://memegeko.github.io/MyHome/?demo=showcase",
+          "sourceUrl": "https://github.com/memegeko/MyHome",
+          "tags": ["Music", "Archive"],
+          "cover": {
+            "src": "./examples/assets/project-media.png",
+            "alt": "Pink and purple Media Library project cover",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    },
+    {
+      "id": "records",
+      "type": "records",
+      "pageId": "records",
+      "title": "Record shelf",
+      "icon": "♫",
+      "enabled": true,
+      "items": [
+        {
+          "id": "record-glass",
+          "title": "Glass Horizon",
+          "artist": "Example Signal",
+          "spotifyUrl": "https://open.spotify.com/",
+          "sampleUrl": "",
+          "cover": {
+            "src": "./examples/assets/record-glass.png",
+            "alt": "Glass Horizon fictional album cover",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    },
+    {
+      "id": "anime",
+      "type": "anime",
+      "pageId": "anime",
+      "title": "Anime tracker",
+      "icon": "★",
+      "enabled": true,
+      "items": [
+        {
+          "id": "anime-skybound",
+          "title": "Skybound Notes",
+          "status": "watching",
+          "currentSeason": 2,
+          "currentEpisode": 7,
+          "watchedSeasons": [1],
+          "totalSeasons": 3,
+          "totalEpisodes": 36,
+          "notes": "Fictional entry demonstrating seasons, episode progress and notes.",
+          "cover": {
+            "src": "./examples/assets/anime-skybound.png",
+            "alt": "Skybound Notes fictional anime cover",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gallery",
+      "type": "gallery",
+      "pageId": "gallery",
+      "title": "Gallery",
+      "icon": "▧",
+      "enabled": true,
+      "items": [
+        {
+          "id": "gallery-aero",
+          "title": "Aero afternoon",
+          "caption": "Example locally packaged artwork with visible credit metadata.",
+          "image": {
+            "src": "./examples/assets/gallery-aero.png",
+            "alt": "Abstract green and blue Aero landscape",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    },
+    {
+      "id": "people",
+      "type": "people",
+      "pageId": "links",
+      "title": "Cool people",
+      "icon": "☻",
+      "enabled": true,
+      "items": [
+        {
+          "id": "person-creator",
+          "name": "Your favorite creator",
+          "description": "People cards can link anywhere and use local or external artwork.",
+          "url": "https://github.com/memegeko/MyHome",
+          "image": {
+            "src": "./examples/assets/avatar.png",
+            "alt": "Abstract creator avatar",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    },
+    {
+      "id": "places",
+      "type": "places",
+      "pageId": "links",
+      "title": "Cool places",
+      "icon": "⌖",
+      "enabled": true,
+      "items": [
+        {
+          "id": "place-myhome",
+          "name": "MyHome repository",
+          "description": "Fork it, customize it and build your own corner of the web.",
+          "url": "https://github.com/memegeko/MyHome",
+          "image": {
+            "src": "./examples/assets/project-aero.png",
+            "alt": "Aero Workspace cover",
+            "credit": "MyHome showcase artwork",
+            "sourceUrl": "https://github.com/memegeko/MyHome"
+          }
+        }
+      ]
+    }
+  ],
+  "appearance": {
+    "themeId": "aero-glass",
+    "accent": "#24c8c0",
+    "background": {
+      "src": "./examples/assets/gallery-aero.png",
+      "alt": "Abstract Aero landscape background",
+      "credit": "MyHome showcase artwork",
+      "sourceUrl": "https://github.com/memegeko/MyHome"
+    },
+    "backgroundMode": "cover",
+    "backgroundPosition": "center",
+    "animationsEnabled": true,
+    "animationIntensity": 62,
+    "animationSpeed": 0.8,
+    "animationEasing": "ease-in-out",
+    "particleType": "bubbles",
+    "particleAmount": 18,
+    "particleSize": 22,
+    "particleDirection": "up",
+    "fontFamily": "Segoe UI, sans-serif",
+    "headingFontFamily": "Segoe UI, sans-serif",
+    "textColor": "#073b50",
+    "panelColor": "#dffaff",
+    "borderColor": "#ffffff",
+    "borderWidth": 1,
+    "borderRadius": 14,
+    "contentSpacing": 16,
+    "pageStyles": {
+      "projects": { "accent": "#49dcca" },
+      "records": { "accent": "#8e63dd" },
+      "anime": { "accent": "#4c8ddd" }
+    }
+  },
+  "updatedAt": "2026-07-26T00:00:00.000Z"
+}

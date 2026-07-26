@@ -10,6 +10,10 @@ const ownerKey = "owner-envelope";
 export const runtimeMode: RuntimeMode =
   import.meta.env.VITE_MYHOME_MODE === "server" ? "server" : "static";
 
+export const showcaseMode =
+  runtimeMode === "static" &&
+  new URLSearchParams(window.location.search).get("demo") === "showcase";
+
 function isSiteDocument(value: unknown): value is SiteDocument {
   if (!value || typeof value !== "object") return false;
   const document = value as Partial<SiteDocument>;
@@ -133,6 +137,17 @@ export async function saveOwnerEnvelope(envelope: OwnerEnvelope) {
 }
 
 export async function loadDocument(): Promise<SiteDocument> {
+  if (showcaseMode) {
+    const response = await fetch("./examples/showcase.json", {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error("The MyHome showcase could not load.");
+    const payload = (await response.json()) as unknown;
+    if (!isSiteDocument(payload)) {
+      throw new Error("The MyHome showcase file is invalid.");
+    }
+    return normalizeDocument(payload);
+  }
   if (runtimeMode === "server") {
     const response = await fetch(`${developerConfig.apiBase}/site`, {
       credentials: "include",

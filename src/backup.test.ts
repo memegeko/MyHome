@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFile } from "node:fs/promises";
 import { exportSiteBundle, importSiteBundle } from "./backup";
 import { createBlankDocument } from "./defaults";
 
@@ -24,5 +25,30 @@ describe("portable MyHome bundle", () => {
     expect(imported.profile.displayName).toBe("Example");
     expect(imported.profile.avatar.src).toMatch(/^data:image\/png;base64,/);
     expect(imported.profile.avatar.credit).toBe("Example creator");
+  });
+
+  it("imports the committed showcase bundle", async () => {
+    const bytes = await readFile("public/examples/myhome-showcase.zip");
+    const imported = await importSiteBundle(
+      new File([bytes], "myhome-showcase.zip", {
+        type: "application/zip",
+      }),
+    );
+
+    expect(imported.profile.displayName).toBe("Nova");
+    expect(imported.pages.filter((page) => page.enabled)).toHaveLength(6);
+    expect(imported.blocks.map((block) => block.type)).toEqual(
+      expect.arrayContaining([
+        "about",
+        "custom",
+        "projects",
+        "records",
+        "anime",
+        "gallery",
+        "people",
+        "places",
+      ]),
+    );
+    expect(imported.profile.avatar.src).toMatch(/^data:image\/png;base64,/);
   });
 });

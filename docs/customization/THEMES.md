@@ -1,5 +1,7 @@
 # Themes and presets
 
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+
 Theme presets contain appearance settings only. They never contain profile
 text, projects, anime, music, people, places, or other personal content.
 

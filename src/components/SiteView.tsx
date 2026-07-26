@@ -309,9 +309,11 @@ function BlockBody({ block }: { block: ContentBlock }) {
 export default function SiteView({
   document,
   onOpenStudio,
+  showcaseMode = false,
 }: {
   document: SiteDocument;
   onOpenStudio: () => void;
+  showcaseMode?: boolean;
 }) {
   const enabledPages = useMemo(
     () => document.pages.filter((page) => page.enabled && !page.private),
@@ -425,9 +427,15 @@ export default function SiteView({
           >
             {showEffects ? "FX ON" : "FX OFF"}
           </button>
-          <button type="button" onClick={onOpenStudio}>
-            Customize
-          </button>
+          {showcaseMode ? (
+            <a className="header-demo-link" href="./examples/myhome-showcase.zip">
+              Download example ZIP
+            </a>
+          ) : (
+            <button type="button" onClick={onOpenStudio}>
+              Customize
+            </button>
+          )}
         </div>
       </header>
 
