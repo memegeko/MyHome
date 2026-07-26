@@ -29,6 +29,14 @@ function rewrite(value, transform) {
 
 const archive = new JSZip();
 const assets = [];
+const imageMimeTypes = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+};
 const packedDocument = rewrite(document, (value) => {
   const prefix = "./examples/assets/";
   if (!value.startsWith(prefix)) return value;
@@ -39,7 +47,9 @@ const packedDocument = rewrite(document, (value) => {
     assets.push({
       placeholder,
       path: packedPath,
-      mimeType: "image/png",
+      mimeType:
+        imageMimeTypes[path.extname(filename).slice(1).toLowerCase()] ||
+        "application/octet-stream",
     });
   }
   return placeholder;

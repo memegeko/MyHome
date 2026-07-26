@@ -49,6 +49,8 @@ describe("portable MyHome bundle", () => {
         "places",
       ]),
     );
-    expect(imported.profile.avatar.src).toMatch(/^data:image\/png;base64,/);
+    expect(imported.profile.avatar.src).toMatch(
+      /^data:image\/svg\+xml;base64,/,
+    );
   });
 });

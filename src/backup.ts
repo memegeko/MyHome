@@ -61,6 +61,7 @@ function extensionForMimeType(mimeType: string) {
     "image/png": "png",
     "image/webp": "webp",
     "image/gif": "gif",
+    "image/svg+xml": "svg",
     "audio/mpeg": "mp3",
     "audio/mp3": "mp3",
     "audio/wav": "wav",
