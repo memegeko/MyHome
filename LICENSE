@@ -1,0 +1,98 @@
+MyHome No-Sale Share-Alike License 1.0
+
+Copyright (c) 2026 Geko
+
+This license is a source-available license. It is not an Open Source Initiative
+approved open-source license.
+
+1. DEFINITIONS
+
+"Software" means the MyHome source code, templates, documentation, included
+theme presets, and other files distributed with this license.
+
+"Modified Version" means any work based on, adapted from, translated from, or
+containing a substantial portion of the Software.
+
+"Company Use" means use by a business, company, organization, school, charity,
+or public body for its own public websites or its own internal purposes.
+
+2. PERMISSION
+
+Subject to this license, you may use, copy, run, host, and modify the Software
+for:
+
+a. personal, educational, non-profit, and hobby use;
+b. Company Use on the company's own public websites; and
+c. Company Use for the company's own internal purposes.
+
+No fee or royalty is owed for the permitted uses above.
+
+3. REQUIRED CREDIT
+
+Every deployed copy and Modified Version must keep a reasonably visible,
+working footer credit reading "MyHome by Geko" and linking to:
+
+https://github.com/memegeko/MyHome
+
+The credit may be small and visually unobtrusive, but it may not be removed,
+hidden, obscured, made unreadable, or changed to imply another original
+creator.
+
+4. PROHIBITED PAID ACTIVITIES
+
+You may not, directly or indirectly:
+
+a. sell, license for a fee, rent, or commercially redistribute the original
+   Software or a Modified Version;
+b. sell themes, presets, modules, plug-ins, add-ons, or derivative templates
+   made specifically for the Software;
+c. charge a client or customer to install, configure, customize, theme,
+   integrate, deploy, or otherwise provide MyHome or a Modified Version; or
+d. place the Software or a Modified Version behind a paid download,
+   subscription, membership, or marketplace listing.
+
+This section does not prevent ordinary salaried employees from setting up or
+maintaining MyHome for their own employer as part of that employer's Company
+Use. It does prevent a contractor, agency, consultant, hosting seller, or other
+service provider from charging a client for MyHome-specific installation or
+customization work.
+
+5. REDISTRIBUTION AND SHARE-ALIKE
+
+You may share the Software or a Modified Version only when:
+
+a. this license is included unchanged;
+b. recipients receive the corresponding source code;
+c. the required footer credit is preserved; and
+d. no additional term removes or weakens the restrictions in this license.
+
+You may not relicense a Modified Version under terms that permit activities
+forbidden by this license.
+
+6. YOUR CONTENT AND THIRD-PARTY MATERIAL
+
+You keep ownership of the original text, images, audio, configuration, and
+other content you add. This license does not grant rights to third-party
+characters, artwork, music, trademarks, or other material. You are responsible
+for having permission to publish the content you add.
+
+7. TRADEMARKS
+
+This license does not grant permission to use the names, logos, or trademarks
+of the original creator except for the required attribution in Section 3 and
+truthful reference to the Software.
+
+8. TERMINATION
+
+Your rights under this license terminate automatically if you violate it. They
+are restored when you stop the violation within 30 days after discovering it,
+unless the copyright holder has already notified you of the violation and you
+do not cure it within 30 days of that notice.
+
+9. NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE
+COPYRIGHT HOLDER IS NOT LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY
+ARISING FROM THE SOFTWARE OR ITS USE.
