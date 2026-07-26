@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "setup:static": "bash ./scripts/bootstrap.sh static",
+    "setup:server": "bash ./scripts/bootstrap.sh server",
     "build": "npm run typecheck && vite build",
     "build:static": "tsc -b && vite build",
     "build:server": "npm run typecheck && vite build --mode server",

@@ -1,96 +1,159 @@
+<div align="center">
+
+<img src="public/myhome.svg" width="116" alt="MyHome logo">
+
 # MyHome
 
-MyHome is a reusable, nostalgic personal-homepage system inspired by the
-creative profile pages of the early web. It combines glossy Aero-style
-presentation with a first-run setup wizard and a full visual editor.
+### Your own nostalgic corner of the internet
 
-The repository starts blank: no Geko profile, no Miku artwork, no social
-accounts, and no example media are placed in a fresh installation.
+A reusable personal-homepage builder with glossy Aero styling, encrypted owner
+tools, flexible content blocks and both static and server deployments.
 
-## What it includes
+[![CI](https://github.com/memegeko/MyHome/actions/workflows/ci.yml/badge.svg)](https://github.com/memegeko/MyHome/actions/workflows/ci.yml)
+[![Pages](https://github.com/memegeko/MyHome/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/memegeko/MyHome/actions/workflows/deploy-pages.yml)
+[![Node 22+](https://img.shields.io/badge/Node.js-22%2B-43853d?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-No--Sale%20Share--Alike-25bfb7)](LICENSE)
 
-- Static and server runtime modes
-- Blank first-run setup wizard
-- One-owner server administration
-- Device-local setup studio for static sites
-- Pages that can be shown, hidden, reordered, renamed and given custom icons
-- Content blocks that can move between pages
-- Completely custom sections
-- Profile, social links, projects, records, anime, gallery, people and places
-- Anime season and episode progress
-- Local uploads or external URLs for every supported image field
-- Local audio samples or external audio URLs for records
-- Uploadable full-page backgrounds with fit, tile and position controls
-- Animation toggles and intensity
-- Importable theme presets
-- One ZIP containing theme, layout, content and locally uploaded media
-- A small required **MyHome by Geko** footer credit
+[Live setup](https://memegeko.github.io/MyHome/) ·
+[Installation](docs/getting-started/INSTALL.md) ·
+[Static guide](docs/deployment/STATIC.md) ·
+[Server guide](docs/deployment/SERVER.md)
 
-## Editions
+</div>
 
-### Static
+---
 
-Use the setup studio in your browser, export a full ZIP, copy its
-`myhome.json` and `assets/` into `public/`, and deploy the generated `dist/`
-folder to GitHub Pages or another static host.
+## ✨ What is MyHome?
 
-See [Static deployment](docs/STATIC-DEPLOYMENT.md).
+MyHome recreates the expressive, customizable feeling of early social-profile
+pages without shipping anybody else's identity. Every fresh installation begins
+blank and opens a first-time setup wizard.
 
-### Server
+- 🪟 Aero-inspired glass interface
+- 🔐 One encrypted owner account in the static edition
+- 🧰 Simple and Expert customization modes
+- 🎨 Global, page and content-block styling
+- ✨ Adjustable animations, particles and animated backgrounds
+- 🧩 Optional projects, records, anime, gallery, people and places
+- 🙈 Private pages, sections and contact details
+- 🖼️ Local uploads or external media URLs
+- 📦 Portable backups and shareable visual presets
+- 🚀 GitHub Pages and Cloudflare Workers support
 
-The server edition uses the same frontend and adds a one-owner account,
-persistent D1 content, and durable R2 uploads. The first included server adapter
-targets Cloudflare Workers because it matches the proven storage model used by
-the original live site.
+## 🚀 Fastest installation
 
-See [Server deployment](docs/SERVER-DEPLOYMENT.md).
+### GitHub Pages — no terminal required
 
-## Start locally
+1. **Fork this repository.**
+2. Open **Settings → Pages**.
+3. Set the source to **GitHub Actions**.
+4. Open your new Pages link and follow the setup wizard.
 
-```sh
-npm install
+### Linux or macOS
+
+```bash
+git clone https://github.com/memegeko/MyHome.git
+cd MyHome
+./scripts/bootstrap.sh static
 npm run dev
 ```
 
-Open the shown address and complete the setup wizard. For static mode, studio
-changes are stored in the current browser until you export them.
+### Windows PowerShell
 
-## Manual customization
-
-- Content and layout: `public/myhome.json`
-- Developer paths and runtime behavior: `src/config/developer.ts`
-- Portable visual presets: `presets/`
-- Configuration schema: [Configuration reference](docs/CONFIGURATION.md)
-- Themes: [Themes and presets](docs/THEMES.md)
-- Server security: [Security model](docs/SECURITY.md)
-
-## Example design
-
-The included Aero Glass preset is a neutral recreation of the visual direction
-used by Geko's personal site. It uses only CSS-generated scenery and interface
-effects. Personal text and copyrighted images are not included in the preset.
-
-![Geko's customized MyHome-inspired Aero profile](docs/screenshots/geko-miku-space.svg)
-
-Documentation screenshots of the original personalized site may appear under
-`docs/screenshots/` for reference only. Artwork visible inside those
-screenshots is not part of the reusable template and remains owned by its
-respective rights holders.
-
-## Validation
-
-```sh
-npm run typecheck
-npm test
-npm run build
+```powershell
+git clone https://github.com/memegeko/MyHome.git
+cd MyHome
+.\scripts\bootstrap.ps1 static
+npm run dev
 ```
 
-## License
+The bootstrapper supports Arch Linux, Debian/Ubuntu, Fedora, openSUSE, Alpine,
+macOS and Windows. See the complete
+[installation guide](docs/getting-started/INSTALL.md).
+
+## 🏠 Choose an edition
+
+| Edition | Best for | Storage | Start command |
+|---|---|---|---|
+| **Static** | GitHub Pages and simple hosting | Encrypted repository configuration + browser | `npm run dev` |
+| **Server** | Shared production site with durable uploads | Cloudflare D1 + R2 | `npm run dev:server` |
+
+Prepare local server mode with:
+
+```bash
+./scripts/bootstrap.sh server
+npm run dev:server
+```
+
+## 🗂️ Folder layout
+
+```text
+MyHome/
+├── docs/
+│   ├── customization/     # Configuration and theme references
+│   ├── deployment/        # Static and server deployment guides
+│   ├── getting-started/   # Installation instructions
+│   ├── reference/         # Security documentation
+│   └── screenshots/       # Documentation-only examples
+├── presets/               # Shareable themes without personal content
+├── public/                # Public configuration and static assets
+├── scripts/               # Linux, macOS and Windows setup helpers
+├── server/
+│   ├── migrations/        # D1 database migrations
+│   └── worker.ts          # Cloudflare Worker and API
+├── src/
+│   ├── components/        # Setup, Studio and public site UI
+│   ├── config/            # Developer-controlled paths and modes
+│   └── *.ts               # Runtime, encryption, media and backup logic
+└── .github/workflows/     # Tests and GitHub Pages publishing
+```
+
+## 🎛️ Customize everything
+
+Use **Customize → Advanced options** to change fonts, colors, borders, spacing,
+motion, particles and backgrounds. Expert mode adds page and section overrides.
+Tabs and content blocks can be hidden, reordered, renamed or made private.
+
+Developers can also work directly with:
+
+- [`public/myhome.json`](public/myhome.json) — public content and layout
+- [`src/config/developer.ts`](src/config/developer.ts) — runtime paths
+- [`presets/`](presets/) — portable visual presets
+- [Configuration reference](docs/customization/CONFIGURATION.md)
+- [Themes and presets](docs/customization/THEMES.md)
+- [Security model](docs/reference/SECURITY.md)
+
+## 🖼️ Example design
+
+The included Aero Glass preset uses CSS-generated scenery and interface effects.
+It contains no personal text or copyrighted artwork.
+
+![Customized MyHome Aero profile](docs/screenshots/geko-miku-space.svg)
+
+Documentation screenshots may show Geko's personalized site for inspiration.
+Artwork visible inside those screenshots is not part of the reusable template.
+
+## ✅ Development checks
+
+```bash
+npm run typecheck
+npm test
+npm run build:static
+npm run build:server
+```
+
+## 📜 License
 
 MyHome uses the [MyHome No-Sale Share-Alike License 1.0](LICENSE). Companies may
-use it for their own public websites and internal use. The license forbids
-selling the original or modified template, selling MyHome themes or add-ons,
-and charging clients for MyHome installation or customization. Shared modified
-versions must keep the same license and required footer credit.
+use it for their own public websites and internal use. Selling the template,
+themes, add-ons, installation or customization services is forbidden. Shared
+modifications must retain the same license and the small **MyHome by Geko**
+footer credit.
 
-This is a source-available license, not an OSI-approved open-source license.
+This is a source-available license and is not OSI-approved open source.
+
+<div align="center">
+
+Made with entirely too much glass, nostalgia and leek energy.
+
+</div>
