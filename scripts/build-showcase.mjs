@@ -8,12 +8,12 @@ const outputPath = path.join(root, "public/examples/myhome-showcase.zip");
 const document = JSON.parse(await readFile(sourcePath, "utf8"));
 
 const assetFiles = [
-  "avatar.png",
-  "project-aero.png",
-  "project-media.png",
-  "record-glass.png",
-  "anime-skybound.png",
-  "gallery-aero.png",
+  "avatar.svg",
+  "project-aero.svg",
+  "project-media.svg",
+  "record-glass.svg",
+  "anime-skybound.svg",
+  "gallery-aero.svg",
 ];
 
 function rewrite(value, transform) {

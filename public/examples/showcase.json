@@ -10,7 +10,7 @@
     "status": "Customizing MyHome",
     "bio": "Welcome to a neutral example installation. Every page, card and image can be replaced in Studio.",
     "avatar": {
-      "src": "./examples/assets/avatar.png",
+      "src": "./examples/assets/avatar.svg",
       "alt": "Abstract blue and turquoise MyHome avatar",
       "credit": "MyHome showcase artwork",
       "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -57,7 +57,7 @@
       "enabled": true,
       "body": "Rename tabs, reorder blocks, upload backgrounds, tune particles and create private sections from the owner Studio.",
       "image": {
-        "src": "./examples/assets/gallery-aero.png",
+        "src": "./examples/assets/gallery-aero.svg",
         "alt": "Abstract Aero landscape",
         "credit": "MyHome showcase artwork",
         "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -82,7 +82,7 @@
           "sourceUrl": "https://github.com/memegeko/MyHome",
           "tags": ["Aero", "Design", "Web"],
           "cover": {
-            "src": "./examples/assets/project-aero.png",
+            "src": "./examples/assets/project-aero.svg",
             "alt": "Blue Aero Workspace project cover",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -97,7 +97,7 @@
           "sourceUrl": "https://github.com/memegeko/MyHome",
           "tags": ["Music", "Archive"],
           "cover": {
-            "src": "./examples/assets/project-media.png",
+            "src": "./examples/assets/project-media.svg",
             "alt": "Pink and purple Media Library project cover",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -120,7 +120,7 @@
           "spotifyUrl": "https://open.spotify.com/",
           "sampleUrl": "",
           "cover": {
-            "src": "./examples/assets/record-glass.png",
+            "src": "./examples/assets/record-glass.svg",
             "alt": "Glass Horizon fictional album cover",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -147,7 +147,7 @@
           "totalEpisodes": 36,
           "notes": "Fictional entry demonstrating seasons, episode progress and notes.",
           "cover": {
-            "src": "./examples/assets/anime-skybound.png",
+            "src": "./examples/assets/anime-skybound.svg",
             "alt": "Skybound Notes fictional anime cover",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -168,7 +168,7 @@
           "title": "Aero afternoon",
           "caption": "Example locally packaged artwork with visible credit metadata.",
           "image": {
-            "src": "./examples/assets/gallery-aero.png",
+            "src": "./examples/assets/gallery-aero.svg",
             "alt": "Abstract green and blue Aero landscape",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -190,7 +190,7 @@
           "description": "People cards can link anywhere and use local or external artwork.",
           "url": "https://github.com/memegeko/MyHome",
           "image": {
-            "src": "./examples/assets/avatar.png",
+            "src": "./examples/assets/avatar.svg",
             "alt": "Abstract creator avatar",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -212,7 +212,7 @@
           "description": "Fork it, customize it and build your own corner of the web.",
           "url": "https://github.com/memegeko/MyHome",
           "image": {
-            "src": "./examples/assets/project-aero.png",
+            "src": "./examples/assets/project-aero.svg",
             "alt": "Aero Workspace cover",
             "credit": "MyHome showcase artwork",
             "sourceUrl": "https://github.com/memegeko/MyHome"
@@ -225,7 +225,7 @@
     "themeId": "aero-glass",
     "accent": "#24c8c0",
     "background": {
-      "src": "./examples/assets/gallery-aero.png",
+      "src": "./examples/assets/gallery-aero.svg",
       "alt": "Abstract Aero landscape background",
       "credit": "MyHome showcase artwork",
       "sourceUrl": "https://github.com/memegeko/MyHome"

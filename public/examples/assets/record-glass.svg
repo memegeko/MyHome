@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title">
+  <title id="title">Glass Signals fictional album artwork</title>
+  <defs><radialGradient id="g"><stop stop-color="#80ffff"/><stop offset=".45" stop-color="#526eff"/><stop offset="1" stop-color="#090c25"/></radialGradient></defs>
+  <rect width="800" height="800" fill="url(#g)"/>
+  <circle cx="400" cy="400" r="285" fill="none" stroke="#fff" stroke-opacity=".58" stroke-width="18"/>
+  <circle cx="400" cy="400" r="190" fill="none" stroke="#70ffd8" stroke-width="7"/>
+  <path d="M160 530Q400 260 640 530" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round"/>
+  <text x="400" y="700" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="58" font-weight="700">GLASS SIGNALS</text>
+</svg>

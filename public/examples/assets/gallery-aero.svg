@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title">
+  <title id="title">Blue glass landscape artwork</title>
+  <defs><linearGradient id="g" y2="1"><stop stop-color="#4be5ff"/><stop offset=".58" stop-color="#4f88dc"/><stop offset="1" stop-color="#18224c"/></linearGradient></defs>
+  <rect width="960" height="540" rx="32" fill="url(#g)"/>
+  <circle cx="750" cy="110" r="82" fill="#fff7b0" opacity=".8"/>
+  <path d="M0 405Q160 290 320 395T640 365T960 370v170H0z" fill="#49efba" opacity=".72"/>
+  <path d="M0 455Q190 345 380 450T730 420T960 430v110H0z" fill="#12264c" opacity=".72"/>
+  <g fill="none" stroke="#fff" opacity=".7"><circle cx="130" cy="125" r="44"/><circle cx="214" cy="210" r="24"/><circle cx="840" cy="280" r="54"/></g>
+</svg>

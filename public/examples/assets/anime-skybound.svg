@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 800" role="img" aria-labelledby="title">
+  <title id="title">Skybound Circuit fictional anime cover</title>
+  <defs><linearGradient id="g" y2="1"><stop stop-color="#44d9ff"/><stop offset=".5" stop-color="#7185ff"/><stop offset="1" stop-color="#281d58"/></linearGradient></defs>
+  <rect width="560" height="800" rx="28" fill="url(#g)"/>
+  <circle cx="430" cy="150" r="120" fill="#fff" opacity=".35"/>
+  <path d="M60 590l150-260 85 135 62-97 143 222z" fill="#101a46" opacity=".78"/>
+  <path d="M280 180l35 94 100 4-78 62 28 96-85-55-85 55 28-96-78-62 100-4z" fill="#baffef"/>
+  <text x="280" y="675" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="55" font-weight="800">SKYBOUND</text>
+  <text x="280" y="731" text-anchor="middle" fill="#d9f9ff" font-family="system-ui,sans-serif" font-size="39">CIRCUIT</text>
+</svg>

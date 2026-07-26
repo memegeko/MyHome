@@ -1,6 +1,6 @@
 # Configuration reference
 
-> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip)
 
 MyHome separates content from the application. A fresh checkout contains a
 blank `public/myhome.json`, so the first visitor sees the setup wizard.

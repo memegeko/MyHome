@@ -1,6 +1,6 @@
 # Server edition: Cloudflare Workers
 
-> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip)
 
 The first server adapter uses:
 

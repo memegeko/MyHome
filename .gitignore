@@ -6,3 +6,4 @@ dist/
 .env
 .DS_Store
 *.log
+public/examples/myhome-showcase.zip

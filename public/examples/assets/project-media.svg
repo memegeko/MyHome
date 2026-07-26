@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-labelledby="title">
+  <title id="title">Local Media Shelf project artwork</title>
+  <rect width="800" height="480" rx="34" fill="#111832"/>
+  <rect x="70" y="90" width="660" height="300" rx="24" fill="#202b50" stroke="#55e1ff" stroke-width="6"/>
+  <circle cx="210" cy="240" r="92" fill="#6a78ff"/><circle cx="210" cy="240" r="28" fill="#111832"/>
+  <path d="M370 166h270M370 236h220M370 306h250" stroke="#b9f4ff" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="688" cy="92" r="76" fill="#55ffc7" opacity=".3"/>
+</svg>

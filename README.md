@@ -16,7 +16,7 @@ tools, flexible content blocks and both static and server deployments.
 
 [Live setup](https://memegeko.github.io/MyHome/) ·
 [Full showcase](https://memegeko.github.io/MyHome/?demo=showcase) ·
-[Example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip) ·
+[Example ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip) ·
 [Installation](docs/getting-started/INSTALL.md) ·
 [Static guide](docs/deployment/STATIC.md) ·
 [Server guide](docs/deployment/SERVER.md)
@@ -46,7 +46,7 @@ blank and opens a first-time setup wizard.
 
 Want to explore first? Open the
 [complete live showcase](https://memegeko.github.io/MyHome/?demo=showcase) or
-[download its importable ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip).
+[download its importable ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip).
 
 ### GitHub Pages — no terminal required
 

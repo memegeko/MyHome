@@ -1,6 +1,6 @@
 # Static edition
 
-> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://github.com/memegeko/MyHome/raw/refs/heads/main/public/examples/myhome-showcase.zip)
+> [View the complete static showcase](https://memegeko.github.io/MyHome/?demo=showcase) · [Download the importable example ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip)
 
 The static edition runs on GitHub Pages, Netlify, Cloudflare Pages, an ordinary
 web server, or directly from a local development server. It does not require a

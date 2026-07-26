@@ -28,6 +28,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run build:showcase
       - run: npm run build:static
       - uses: actions/configure-pages@v5
         with:
