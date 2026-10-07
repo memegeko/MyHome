@@ -196,6 +196,21 @@ export async function saveDocument(document: SiteDocument) {
   return next;
 }
 
+export async function loadDraft(): Promise<SiteDocument | null> {
+  const response = await fetch(`${developerConfig.apiBase}/draft`, { credentials: "include", cache: "no-store" });
+  if (!response.ok) throw new Error("Could not load your draft.");
+  const payload = await response.json() as { document?: unknown };
+  return isSiteDocument(payload.document) ? normalizeDocument(payload.document) : null;
+}
+
+export async function saveDraft(document: SiteDocument) {
+  const response = await fetch(`${developerConfig.apiBase}/draft`, {
+    method: "PUT", credentials: "include", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ document }),
+  });
+  if (!response.ok) throw new Error("Could not save your draft. Sign in again and retry.");
+}
+
 export async function resetLocalDocument() {
   const database = await openStudioDatabase();
   return new Promise<void>((resolve, reject) => {

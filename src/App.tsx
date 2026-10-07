@@ -63,6 +63,12 @@ function OwnerLogin({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [recoveryMode, setRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [recoveryCode, setRecoveryCode] = useState("");
+  const [githubEnabled, setGithubEnabled] = useState(false);
+  useEffect(() => {
+    if (serverMode) fetch(`${developerConfig.apiBase}/auth-options`).then((r) => r.json()).then((p: { github?: boolean }) => setGithubEnabled(Boolean(p.github))).catch(() => {});
+  }, [serverMode]);
 
   const login = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -70,17 +76,21 @@ function OwnerLogin({
     setMessage("");
     try {
       if (serverMode) {
-        const response = await fetch(`${developerConfig.apiBase}/login`, {
+        const response = await fetch(`${developerConfig.apiBase}/${recoveryMode ? "recover" : "login"}`, {
           method: "POST",
           credentials: "include",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify(recoveryMode ? { code: password, password: newPassword } : { email, password }),
         });
         const payload = (await response.json().catch(() => ({}))) as {
           error?: string;
+          recoveryCode?: string;
         };
         if (!response.ok) throw new Error(payload.error || "Login failed.");
-        onAuthenticated();
+        if (recoveryMode) {
+          setRecoveryCode(payload.recoveryCode || ""); setPassword(""); setNewPassword("");
+          setMessage("Password reset. Save your new recovery code, then sign in.");
+        } else onAuthenticated();
       } else {
         const envelope = await loadOwnerEnvelope();
         if (!envelope) {
@@ -129,11 +139,14 @@ function OwnerLogin({
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
+        {serverMode && recoveryMode && <label><span>New password</span><input type="password" autoComplete="new-password" minLength={12} maxLength={256} required value={newPassword} onChange={(event) => setNewPassword(event.target.value)} /></label>}
+        {recoveryCode && <div className="recovery-key"><span>New recovery code</span><code>{recoveryCode}</code><button type="button" className="secondary-button" onClick={() => void navigator.clipboard.writeText(recoveryCode)}>Copy recovery code</button></div>}
         {message && <p className="form-message error">{message}</p>}
         <button className="primary-button" type="submit" disabled={busy}>
           {busy ? "Unlocking…" : recoveryMode ? "Recover access" : "Sign in"}
         </button>
-        {!serverMode && (
+        {githubEnabled && <a className="secondary-button" href={`${developerConfig.apiBase}/github`}>Sign in with GitHub</a>}
+        {(
           <button
             className="secondary-button"
             type="button"
@@ -208,6 +221,18 @@ export default function App() {
     })
       .then((response) => setAuthenticated(response.ok))
       .catch(() => setAuthenticated(false));
+  }, [route]);
+
+  useEffect(() => {
+    if (runtimeMode !== "server" || route !== "site") return;
+    let cancelled = false;
+    const refresh = () => {
+      if (window.document.visibilityState !== "visible") return;
+      void loadDocument().then((next) => { if (!cancelled) setDocument(next); }).catch(() => {});
+    };
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener("focus", refresh);
+    return () => { cancelled = true; window.clearInterval(timer); window.removeEventListener("focus", refresh); };
   }, [route]);
 
   const completeSetup = async (

@@ -1,13 +1,5 @@
 import type { OwnerEnvelope, SiteDocument } from "./types";
-
-function publicDocument(document: SiteDocument): SiteDocument {
-  return {
-    ...document,
-    pages: document.pages.filter((page) => !page.private),
-    blocks: document.blocks.filter((block) => !block.private),
-    socials: document.socials.filter((social) => !social.private),
-  };
-}
+import { publicDocument } from "./publicDocument";
 
 async function githubRequest(
   token: string,

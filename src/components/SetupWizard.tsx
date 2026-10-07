@@ -92,9 +92,9 @@ export default function SetupWizard({
         ? true
         : step === 2
           ? owner.email.includes("@") &&
-            owner.password.length >= 8 &&
+            owner.password.length >= (serverMode ? 12 : 8) &&
             owner.password === confirmPassword &&
-            (serverMode || recoveryConfirmed)
+            recoveryConfirmed
           : true;
 
   const togglePage = (pageId: string) => {
@@ -360,6 +360,8 @@ export default function SetupWizard({
                         <option value="until-logout">Stay signed in until I log out</option>
                       </select>
                     </label>
+                  </>
+                )}
                     <div className="recovery-key wide">
                       <span>Recovery key — save this somewhere safe</span>
                       <code>{owner.recoveryKey}</code>
@@ -379,8 +381,6 @@ export default function SetupWizard({
                         I saved my recovery key
                       </label>
                     </div>
-                  </>
-                )}
               </div>
             </>
           )}

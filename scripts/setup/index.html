@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MyHome Setup</title><link rel="stylesheet" href="/setup.css"><script type="module" src="/setup.js"></script></head>
+<body>
+<main class="installer" id="installer">
+<header class="titlebar"><div><img src="/myhome.svg" alt="" width="22" height="22"><span>MyHome Setup</span></div><button class="window-tool" id="help" type="button" title="Setup help" aria-label="Setup help"><img src="/icons/help.svg" alt=""></button></header>
+<div class="window-body">
+<aside class="sidebar">
+<div class="brand"><img src="/myhome.svg" alt="" width="43" height="43"><div><strong>MyHome</strong><span>A little place of your own.</span></div></div>
+<nav aria-label="Installation steps"><ol id="steps">
+<li><button type="button" data-step="0" aria-current="step" title="Cloudflare account"><img src="/icons/cloud.svg" alt=""><span>Cloudflare account<small>Connect your home</small></span><b>1</b></button></li>
+<li><button type="button" data-step="1" disabled title="Your profile"><img src="/icons/user.svg" alt=""><span>Your profile<small>Make it yours</small></span><b>2</b></button></li>
+<li><button type="button" data-step="2" disabled title="Personalize"><img src="/icons/palette.svg" alt=""><span>Personalize<small>A touch of Aero</small></span><b>3</b></button></li>
+<li><button type="button" data-step="3" disabled title="Owner account"><img src="/icons/shield.svg" alt=""><span>Owner account<small>Keep it safe</small></span><b>4</b></button></li>
+<li><button type="button" data-step="4" disabled title="Install"><img src="/icons/download.svg" alt=""><span>Install<small>Your new beginning</small></span><b>5</b></button></li>
+</ol></nav>
+<div class="sidebar-bottom"><img src="/icons/lock.svg" alt=""><span id="account-status">Your Cloudflare account<br>Your site, your control</span></div>
+</aside>
+<div class="content">
+<div class="content-top"><span id="step-count">STEP 1 OF 5</span><span>Aero edition</span></div>
+<form id="setup" novalidate>
+<section class="step-panel" data-panel="0" aria-labelledby="heading-account">
+<h1 id="heading-account" tabindex="-1">Connect your account</h1><p class="lead">Let's find a home for your website.</p>
+<div class="connect-band"><img src="/icons/cloud.svg" alt="" class="large-icon"><div><strong>Cloudflare</strong><p id="connection" role="status">Not connected</p></div><button id="connect" type="button"><img src="/icons/link.svg" alt="">Connect account</button></div>
+<label>Cloudflare account ID<input name="accountId" required pattern="[a-fA-F0-9]{32}" autocomplete="off" placeholder="Your 32-character account ID"><small>Find it under Workers &amp; Pages in your <a href="https://dash.cloudflare.com/" target="_blank" rel="noreferrer">Cloudflare dashboard</a>.</small></label>
+<div class="notice"><img src="/icons/info.svg" alt=""><p>A free <strong>workers.dev</strong> address is included. You can connect your own domain later.</p></div>
+</section>
+<section class="step-panel" data-panel="1" hidden aria-labelledby="heading-profile">
+<h1 id="heading-profile" tabindex="-1">Your profile</h1><p class="lead">A familiar name. A new corner of the internet.</p>
+<div class="fields">
+<label>Display name<input name="displayName" required maxlength="100" autocomplete="name" placeholder="What should we call you?"></label>
+<label>Username<input name="username" required pattern="[a-zA-Z0-9_\-]{1,40}" autocomplete="nickname" placeholder="your-name"></label>
+<label class="wide">Site address<div class="address-input"><input name="name" required pattern="[a-z][a-z0-9\-]{2,39}" placeholder="my-home"><span>.workers.dev</span></div><small>Your account's Workers subdomain will also be part of the address.</small></label>
+<label>Tagline<input name="tagline" maxlength="200" placeholder="Your little corner of the web"></label><label>Status<input name="status" maxlength="200" placeholder="What are you up to?"></label><label class="wide">Avatar URL<input name="avatarUrl" type="url" placeholder="https://example.com/avatar.png"></label><label class="wide">Bio<textarea name="bio" maxlength="4000" rows="4" placeholder="A few words about your world..."></textarea></label>
+</div>
+<button class="mobile-preview" type="button" data-open-preview><img src="/icons/eye.svg" alt="">Preview your site</button>
+</section>
+<section class="step-panel" data-panel="2" hidden aria-labelledby="heading-theme">
+<h1 id="heading-theme" tabindex="-1">A touch of Aero</h1><p class="lead">Choose the color of your little world.</p>
+<fieldset class="palette-picker"><legend>Glass color</legend><div class="swatches">
+<label title="Lagoon"><input type="radio" name="palette" value="#24c8c0" checked><span class="swatch lagoon"></span><small>Lagoon</small></label>
+<label title="Sky"><input type="radio" name="palette" value="#258bd2"><span class="swatch sky"></span><small>Sky</small></label>
+<label title="Rose"><input type="radio" name="palette" value="#d76594"><span class="swatch rose"></span><small>Rose</small></label>
+<label title="Leaf"><input type="radio" name="palette" value="#5caa48"><span class="swatch leaf"></span><small>Leaf</small></label>
+<label title="Sunshine"><input type="radio" name="palette" value="#d49b24"><span class="swatch sunshine"></span><small>Sunshine</small></label>
+</div></fieldset>
+<div class="fields"><label>Custom color<input name="accent" type="color" value="#24c8c0"></label><label>Font<select name="fontFamily"><option value="segoe">Segoe UI</option><option value="tahoma">Tahoma</option><option value="trebuchet">Trebuchet MS</option></select></label></div>
+<details class="advanced-settings"><summary>More personalization</summary><div class="fields">
+<label>Site title<input name="siteTitle" maxlength="200" placeholder="Defaults to your display name"></label>
+<label>Site subtitle<input name="siteSubtitle" maxlength="300" placeholder="A little place of your own"></label>
+<label class="wide">Background URL<input name="backgroundUrl" type="url" placeholder="https://example.com/background.jpg"></label>
+<label>Background fit<select name="backgroundMode"><option>cover</option><option>contain</option><option>tile</option><option>stretch</option></select></label>
+<label>Background position<select name="backgroundPosition"><option>center</option><option>top</option><option>bottom</option><option>left</option><option>right</option></select></label>
+<label>Text color<input name="textColor" type="color" value="#17445b"></label><label>Panel color<input name="panelColor" type="color" value="#effbff"></label>
+<label>Corner radius<input name="borderRadius" type="range" min="0" max="40" value="18"></label>
+<label>Content spacing<input name="contentSpacing" type="range" min="0" max="48" value="20"></label>
+<label>Particles<select name="particleType"><option>bubbles</option><option>sparkles</option><option>snow</option><option>none</option></select></label>
+<label>Particle amount<input name="particleAmount" type="range" min="0" max="60" value="18"></label>
+</div><p>You can also edit pages, private sections, projects, records, anime, galleries and links in the admin panel after installation.</p></details>
+<label class="check motion-toggle"><input name="animations" type="checkbox" checked><span>Smooth Aero animations</span><img src="/icons/sparkles.svg" alt=""></label>
+<button class="mobile-preview" type="button" data-open-preview><img src="/icons/eye.svg" alt="">Preview your site</button>
+</section>
+<section class="step-panel" data-panel="3" hidden aria-labelledby="heading-owner">
+<h1 id="heading-owner" tabindex="-1">Your owner account</h1><p class="lead">The key to your home.</p>
+<div class="fields">
+<label>Sign in with<select name="login" id="login"><option value="password">Password</option><option value="github">GitHub</option><option value="both">GitHub and password</option></select></label>
+<label>Owner email<input name="email" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+<label class="wide" id="password-field">Password<input name="password" type="password" minlength="12" maxlength="256" required autocomplete="new-password" placeholder="At least 12 characters"><div class="password-meter" aria-hidden="true"><span id="password-strength"></span></div><small id="password-hint">Use a unique password.</small></label>
+</div>
+<div id="github-fields" hidden><div class="fields">
+<label>GitHub username<input name="githubUsername" autocomplete="off"></label>
+<label>Workers subdomain<input id="subdomain" placeholder="your-account"></label>
+<label>OAuth client ID<input name="githubClientId" autocomplete="off"></label>
+<label>OAuth client secret<input name="githubClientSecret" type="password" autocomplete="off"></label>
+</div><p class="oauth-note">Create an app in <a href="https://github.com/settings/applications/new" target="_blank" rel="noreferrer">GitHub OAuth settings</a> with this callback:</p><code id="callback">Enter your site address and Workers subdomain</code></div>
+<label class="check"><input name="uploads" type="checkbox">Enable image and audio uploads with R2</label><small>R2 may require billing activation. Image URLs work without it.</small>
+</section>
+<section class="step-panel" data-panel="4" hidden aria-labelledby="heading-install">
+<div id="review"><h1 id="heading-install" tabindex="-1">Ready to install</h1><p class="lead">One last look before your home goes live.</p>
+<dl class="review-list"><div><dt>Site</dt><dd id="review-name">MyHome</dd></div><div><dt>Address</dt><dd id="review-address"></dd></div><div><dt>Owner login</dt><dd id="review-login"></dd></div><div><dt>Theme</dt><dd>Aero Glass <span id="review-color"></span></dd></div><div><dt>Storage</dt><dd id="review-storage"></dd></div></dl>
+<label class="check"><input id="confirm" type="checkbox" required>Create this site and its storage in my Cloudflare account.</label>
+<button id="deploy" class="primary" type="submit" disabled><img src="/icons/download.svg" alt="">Install MyHome</button>
+</div>
+<div id="progress" hidden><h1 id="stage" tabindex="-1">Installing MyHome</h1><p class="lead" id="install-caption">Making room for your new home...</p><div class="installation-meter" role="progressbar" aria-label="Installation progress"><span id="install-meter"></span></div><ol class="install-tasks" id="install-tasks"><li>Prepare your Cloudflare storage</li><li>Secure your owner account</li><li>Build and deploy your site</li><li>Check your new home</li></ol><details><summary>Installation details</summary><pre id="logs"></pre></details></div>
+</section>
+</form>
+<section id="success" hidden><div class="success-icon"><img src="/icons/check.svg" alt=""></div><h1 tabindex="-1">Welcome home.</h1><p class="lead">Your MyHome is ready for you.</p><p class="success-links"><a id="site-link" class="button primary"><img src="/icons/external.svg" alt="">Open your site</a><a id="admin-link" class="button">Open admin panel</a></p><label>Recovery code<div class="recovery-input"><input id="recovery" readonly><button type="button" id="copy" title="Copy recovery code" aria-label="Copy recovery code"><img src="/icons/copy.svg" alt=""></button></div></label><p class="muted">Save this code somewhere private. It lets you reset your password.</p><a href="https://dash.cloudflare.com/" target="_blank" rel="noreferrer">Cloudflare dashboard</a></section>
+<p id="error" role="alert" hidden></p>
+</div>
+<aside class="preview-pane" aria-label="Live site preview"><div class="preview-label"><img src="/icons/eye.svg" alt=""><span>A little preview</span></div><div class="preview-window"><div class="preview-title"><img src="/myhome.svg" alt=""><span id="preview-title">MyHome</span></div><div class="preview-nav">Home <span>About</span><span>Links</span></div><div class="preview-profile"><img class="preview-avatar" src="/myhome.svg" alt=""><h2 id="preview-name">Your name here</h2><span id="preview-username">@your-name</span><p id="preview-tagline"></p><div class="preview-online"><i></i><span id="preview-status">A new corner of the internet</span></div></div><div class="preview-about"><h3>About me</h3><p id="preview-bio">Every home starts with a little hello.</p></div><div class="preview-credit">MyHome by Geko</div></div><div class="preview-address"><img src="/icons/globe.svg" alt=""><span id="preview-address">my-home.workers.dev</span></div></aside>
+</div>
+<footer class="installer-footer"><span id="footer-status"><img src="/icons/lock.svg" alt="">Made for your own Cloudflare account</span><div><button id="back" type="button" disabled><img src="/icons/back.svg" alt="">Back</button><button id="next" class="primary" type="button">Next<img src="/icons/next.svg" alt=""></button></div></footer>
+</main>
+<dialog id="help-dialog"><h2>MyHome Setup</h2><p>Connect Cloudflare, add your profile, choose your theme, and create an owner account. Installation creates a Worker and database in your account.</p><p>Keep your terminal open until setup finishes. Your recovery code is shown at the end.</p><p>GitHub login needs your own OAuth app. R2 uploads are optional.</p><button id="close-help" type="button">Close</button></dialog>
+<dialog id="preview-dialog"><button id="close-preview" type="button" title="Close preview" aria-label="Close preview"><img src="/icons/back.svg" alt="">Back to setup</button></dialog>
+</body></html>

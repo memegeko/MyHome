@@ -44,6 +44,17 @@ blank and opens a first-time setup wizard.
 
 ## 🚀 Fastest installation
 
+### Cloudflare Workers browser wizard
+
+For Windows and Linux, install Node.js 22.18+ and Git, clone this repository,
+then run `npm ci` and `npm run setup:cloudflare`. A local browser wizard connects
+your Cloudflare account, sets up your profile and owner login, and deploys your
+site to a free `workers.dev` address. Save the recovery code at the end.
+
+The admin panel supports private drafts, preview, and publishing. GitHub login
+requires an OAuth app; R2 uploads are optional. See the
+[browser deployment guide](docs/deployment/WIZARD.md).
+
 Want to explore first? Open the
 [complete live showcase](https://memegeko.github.io/MyHome/?demo=showcase) or
 [download its importable ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip).

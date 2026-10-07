@@ -22,7 +22,8 @@ First-run setup is rejected after that row exists.
 ## Password storage
 
 Passwords are never stored in configuration or plain text. The Worker derives
-a hash with PBKDF2-HMAC-SHA-256, a unique random salt, 210,000 iterations, and
+a hash with PBKDF2-HMAC-SHA-256, a unique random salt, 100,000 iterations (the
+Workers Web Crypto limit), and
 the deployment's `SESSION_SECRET`.
 
 Use a unique password of at least 12 characters and protect the Cloudflare
@@ -39,12 +40,31 @@ account that controls the deployment.
 
 ## Request protection
 
-- Content writes, setup, login, logout and uploads reject mismatched origins.
+- Content writes, setup, login, logout, recovery and uploads require the same origin.
 - Admin API routes require a valid owner session.
 - Content documents are size-limited and reject `javascript:` URLs.
 - React escapes user-authored text.
 - Responses include a restrictive Content Security Policy, frame protection,
   referrer policy and MIME sniffing protection.
+- Login, recovery and GitHub authorization starts are limited to 10 attempts
+  per IP address in 15 minutes using atomic counters in D1.
+- Public content responses omit private pages, their blocks, private blocks,
+  and private contact links. Drafts are accessible only to the owner.
+
+## GitHub and recovery
+
+GitHub OAuth uses a random, short-lived, single-use state bound to an HttpOnly
+cookie. Only the configured numeric GitHub owner ID is accepted. The OAuth
+client secret is a Worker secret; no repository scopes are requested.
+
+Recovery codes are hashed with the deployment secret and rotated atomically
+after use. Password resets invalidate all sessions. Cloudflare owners can set
+a temporary single-use `RECOVERY_OVERRIDE_CODE` secret when the saved code is
+lost. See the [wizard guide](../deployment/WIZARD.md) for the recovery procedure.
+
+The browser installer seeds the owner before deploying and sets `SETUP_LOCKED`
+to disable public first-run setup. Failed deployment state is kept in ignored
+local files with private file permissions where supported by the OS.
 
 ## Uploads
 

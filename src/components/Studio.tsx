@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ExternalLink, Eye, LogOut, Save, Upload } from "lucide-react";
+import SiteView from "./SiteView";
+import { loadDraft, saveDraft } from "../runtime";
 import {
   downloadBlob,
   exportSiteBundle,
@@ -639,8 +642,22 @@ export default function Studio({
   const [document, setDocument] = useState(initialDocument);
   const [tab, setTab] = useState<StudioTab>("profile");
   const [dirty, setDirty] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState(false);
+  const [draftLoading, setDraftLoading] = useState(serverMode);
+  const [draftFailed, setDraftFailed] = useState(false);
+  useEffect(() => {
+    if (!serverMode) return;
+    let cancelled = false;
+    loadDraft().then((draft) => {
+      if (!cancelled && draft) { setDocument(draft); setDraftSaved(true); setDirty(JSON.stringify(draft) !== JSON.stringify(initialDocument)); }
+    }).catch((error: unknown) => {
+      if (!cancelled) { setDraftFailed(true); setMessage(error instanceof Error ? error.message : "Draft loading failed."); }
+    }).finally(() => { if (!cancelled) setDraftLoading(false); });
+    return () => { cancelled = true; };
+  }, [serverMode]);
   const [advancedMode, setAdvancedMode] = useState<"simple" | "expert">("simple");
   const [github, setGithub] = useState({
     token: "",
@@ -652,6 +669,7 @@ export default function Studio({
   const updateDocument = (next: SiteDocument) => {
     setDocument(next);
     setDirty(true);
+    setDraftSaved(false);
   };
 
   const save = async () => {
@@ -660,6 +678,7 @@ export default function Studio({
     try {
       await onSave({ ...document, configured: true });
       setDirty(false);
+      setDraftSaved(true);
       setMessage("Saved. Your public site now uses these changes.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Save failed.");
@@ -694,6 +713,18 @@ export default function Studio({
     updateDocument({ ...document, blocks: [...document.blocks, block] });
   };
 
+  if (draftLoading) return <main className="loading-screen"><strong>Opening draft...</strong></main>;
+
+  if (preview) return <>
+    <div className="studio-preview-bar">
+      <strong>Draft preview</strong>
+      <button className="secondary-button" onClick={() => setPreview(false)}><ArrowLeft size={16} aria-hidden="true" />Back to editor</button>
+      <button className="primary-button" disabled={busy || !dirty} onClick={() => void save()}><Upload size={16} aria-hidden="true" />{busy ? "Publishing..." : "Publish"}</button>
+      {message && <span role="status">{message}</span>}
+    </div>
+    <SiteView document={document} onOpenStudio={() => setPreview(false)} />
+  </>;
+
   return (
     <main
       className="studio-world"
@@ -709,20 +740,30 @@ export default function Studio({
         </div>
         <div className="studio-actions">
           <span className={dirty ? "dirty-state" : "saved-state"}>
-            {dirty ? "● Unsaved changes" : "✓ Saved"}
+            {dirty ? serverMode ? draftSaved ? "● Unpublished draft" : "● Unsaved draft" : "● Unsaved changes" : "✓ Saved"}
           </span>
-          <button type="button" className="secondary-button" onClick={onClose}>View site</button>
+          <button type="button" className="secondary-button studio-tool" title="Preview" aria-label="Preview" disabled={draftLoading || draftFailed} onClick={() => setPreview(true)}><Eye size={18} /></button>
+          <button type="button" className="secondary-button studio-tool" title="View site" aria-label="View site" onClick={onClose}><ExternalLink size={18} /></button>
+          {serverMode && <button type="button" className="secondary-button studio-tool" title="Save draft" aria-label="Save draft" disabled={busy || draftLoading || draftFailed || !dirty || draftSaved} onClick={async () => {
+            setBusy(true);
+            try { await saveDraft(document); setDraftSaved(true); setMessage("Draft saved."); }
+            catch (error) { setMessage(error instanceof Error ? error.message : "Draft save failed."); }
+            finally { setBusy(false); }
+          }}><Save size={18} /></button>}
           {onLogout && (
             <button
               type="button"
-              className="secondary-button"
+              className="secondary-button studio-tool"
+              title="Sign out"
+              aria-label="Sign out"
               onClick={() => void onLogout()}
             >
-              Sign out
+              <LogOut size={18} />
             </button>
           )}
-          <button type="button" className="primary-button" disabled={!dirty || busy} onClick={() => void save()}>
-            {busy ? "Saving…" : "Save changes"}
+          <button type="button" className="primary-button" disabled={!dirty || busy || draftLoading || draftFailed} onClick={() => void save()}>
+            {serverMode ? <Upload size={16} aria-hidden="true" /> : <Save size={16} aria-hidden="true" />}
+            {busy ? "Saving…" : serverMode ? "Publish" : "Save changes"}
           </button>
         </div>
       </header>
@@ -731,7 +772,7 @@ export default function Studio({
         <aside className="studio-sidebar glass-panel">
           <p>CONTROL PANEL</p>
           <nav aria-label="Studio sections">
-            {studioTabs.map((item) => (
+            {studioTabs.filter((item) => !serverMode || item.id !== "publish").map((item) => (
               <button
                 type="button"
                 key={item.id}
@@ -1311,6 +1352,7 @@ export default function Studio({
                             ),
                           );
                           setDirty(true);
+                          setDraftSaved(false);
                           setMessage("Backup imported. Review it, then save.");
                         } catch (error) {
                           setMessage(error instanceof Error ? error.message : "Import failed.");

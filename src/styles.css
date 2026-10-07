@@ -2218,3 +2218,28 @@ button:disabled,
     flex-direction: column;
   }
 }
+.studio-preview-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #fff;
+  color: #163d43;
+  border-bottom: 1px solid #a8b9bb;
+}
+
+.studio-actions .studio-tool {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.studio-actions .primary-button,
+.studio-preview-bar button {
+  gap: 6px;
+}

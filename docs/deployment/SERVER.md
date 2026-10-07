@@ -9,8 +9,10 @@ The first server adapter uses:
 - R2 for uploaded images and audio; and
 - Workers Static Assets for the built frontend.
 
-The owner login is application-owned. It does not use ChatGPT, GitHub, or a
-third-party identity service.
+For guided deployment on Windows and Linux, run `npm run setup:cloudflare` after
+`npm ci`. See the [browser wizard guide](WIZARD.md). It supports password login,
+GitHub login, recovery codes, optional R2 uploads, and private drafts with preview
+and publish. The manual procedure below remains available for developers.
 
 ## Requirements
 

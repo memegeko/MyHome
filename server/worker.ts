@@ -1,11 +1,17 @@
 import { createBlankDocument } from "../src/defaults";
+import { publicDocument } from "../src/publicDocument";
 import type { SiteDocument } from "../src/types";
 
 interface Env {
   DB: D1Database;
-  MEDIA: R2Bucket;
+  MEDIA?: R2Bucket;
   ASSETS: Fetcher;
   SESSION_SECRET?: string;
+  SETUP_LOCKED?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  OWNER_GITHUB_ID?: string;
+  RECOVERY_OVERRIDE_CODE?: string;
 }
 
 type UploadKind = "image" | "audio";
@@ -13,7 +19,7 @@ type UploadPart = { partNumber: number; etag: string };
 
 const sessionCookieName = "myhome_session";
 const sessionDays = 14;
-const passwordIterations = 210_000;
+const passwordIterations = 100_000;
 const uploadChunkBytes = 1024 * 1024;
 
 const imageTypes = new Set([
@@ -32,6 +38,11 @@ const audioTypes = new Set([
 ]);
 
 const schemaStatements = [
+  `CREATE TABLE IF NOT EXISTS myhome_draft (id INTEGER PRIMARY KEY CHECK (id = 1), document TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS myhome_recovery (id INTEGER PRIMARY KEY CHECK (id = 1), code_hash TEXT NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS myhome_auth_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS myhome_oauth_states (state_hash TEXT PRIMARY KEY, expires_at INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS myhome_operator_recovery (code_hash TEXT PRIMARY KEY)`,
   `CREATE TABLE IF NOT EXISTS myhome_owner (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     email TEXT NOT NULL UNIQUE,
@@ -111,7 +122,7 @@ function securityHeaders(response: Response) {
 
 function sameOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  return !origin || origin === new URL(request.url).origin;
+  return origin === new URL(request.url).origin;
 }
 
 async function ensureSchema(database: D1Database) {
@@ -354,9 +365,8 @@ async function handleSite(request: Request, env: Env) {
     }
     try {
       const document = JSON.parse(row.document) as unknown;
-      return isSiteDocument(document)
-        ? json({ document, setupRequired: false })
-        : json({ error: "Stored site content is invalid." }, 500);
+      if (!isSiteDocument(document)) return json({ error: "Stored site content is invalid." }, 500);
+      return json({ document: await authenticate(request, env) ? document : publicDocument(document), setupRequired: false });
     } catch {
       return json({ error: "Stored site content is unreadable." }, 500);
     }
@@ -373,21 +383,23 @@ async function handleSite(request: Request, env: Env) {
   if (!isSiteDocument(body.document)) {
     return json({ error: "The site document is invalid or too large." }, 400);
   }
-  await env.DB.prepare(
+  await env.DB.batch([env.DB.prepare(
     `INSERT INTO myhome_content (id, document, updated_at)
      VALUES (1, ?, CURRENT_TIMESTAMP)
      ON CONFLICT(id) DO UPDATE SET
        document = excluded.document,
        updated_at = CURRENT_TIMESTAMP`,
   )
-    .bind(JSON.stringify(body.document))
-    .run();
+    .bind(JSON.stringify(body.document)),
+    env.DB.prepare("INSERT INTO myhome_draft (id, document) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET document = excluded.document").bind(JSON.stringify(body.document)),
+  ]);
   return json({ saved: true, document: body.document });
 }
 
 async function handleSetup(request: Request, env: Env) {
   if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
   if (!sameOrigin(request)) return json({ error: "Origin rejected." }, 403);
+  if (env.SETUP_LOCKED === "true") return json({ error: "Use the local installer to configure this site." }, 403);
   if (!env.SESSION_SECRET || env.SESSION_SECRET.length < 24) {
     return json(
       { error: "SESSION_SECRET must be configured before first setup." },
@@ -400,12 +412,14 @@ async function handleSetup(request: Request, env: Env) {
   if (existing) return json({ error: "MyHome already has an owner." }, 409);
 
   const body = (await request.json()) as {
-    owner?: { email?: unknown; password?: unknown };
+    owner?: { email?: unknown; password?: unknown; recoveryKey?: unknown };
     document?: unknown;
   };
   const email = cleanText(body.owner?.email, 254).toLowerCase();
   const password =
     typeof body.owner?.password === "string" ? body.owner.password : "";
+  const recoveryKey = cleanText(body.owner?.recoveryKey, 200);
+  if (recoveryKey.length < 24) return json({ error: "Save a recovery code before setup." }, 400);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ error: "Enter a valid owner email." }, 400);
   }
@@ -425,6 +439,9 @@ async function handleSetup(request: Request, env: Env) {
   );
   try {
     await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO myhome_recovery (id, code_hash) VALUES (1, ?)",
+      ).bind(await sha256(`${recoveryKey}\u0000${env.SESSION_SECRET}`)),
       env.DB.prepare(
         `INSERT INTO myhome_owner
           (id, email, password_hash, password_salt, password_iterations)
@@ -455,6 +472,7 @@ async function handleLogin(request: Request, env: Env) {
   if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
   if (!sameOrigin(request)) return json({ error: "Origin rejected." }, 403);
   if (!env.SESSION_SECRET) return json({ error: "Server login is not configured." }, 500);
+  if (!(await allowAuthAttempt(request, env))) return json({ error: "Too many attempts. Try again in 15 minutes." }, 429);
   const body = (await request.json()) as {
     email?: unknown;
     password?: unknown;
@@ -499,6 +517,109 @@ async function handleSession(request: Request, env: Env) {
     : json({ authenticated: false }, 401);
 }
 
+async function allowAuthAttempt(request: Request, env: Env) {
+  const now = Date.now();
+  const key = await sha256(request.headers.get("cf-connecting-ip") || "local");
+  await env.DB.prepare("DELETE FROM myhome_auth_attempts WHERE expires_at < ?").bind(now).run();
+  const row = await env.DB.prepare(
+    `INSERT INTO myhome_auth_attempts (key, attempts, expires_at) VALUES (?, 1, ?)
+     ON CONFLICT(key) DO UPDATE SET attempts = attempts + 1 RETURNING attempts`,
+  ).bind(key, now + 15 * 60 * 1000).first<{ attempts: number }>();
+  return Boolean(row && row.attempts <= 10);
+}
+
+async function handleRecovery(request: Request, env: Env) {
+  if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
+  if (!sameOrigin(request)) return json({ error: "Origin rejected." }, 403);
+  if (!env.SESSION_SECRET) return json({ error: "Login is not configured." }, 503);
+  if (!(await allowAuthAttempt(request, env))) return json({ error: "Too many attempts. Try again in 15 minutes." }, 429);
+  const body = await request.json() as { code?: unknown; password?: unknown };
+  const code = cleanText(body.code, 200);
+  const password = typeof body.password === "string" ? body.password : "";
+  if (password.length < 12 || password.length > 256) return json({ error: "Use a password of 12-256 characters." }, 400);
+  const codeHash = await sha256(`${code}\u0000${env.SESSION_SECRET}`);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await derivePassword(password, salt, passwordIterations, env.SESSION_SECRET);
+  const recoveryCode = randomToken();
+  const newHash = await sha256(`${recoveryCode}\u0000${env.SESSION_SECRET}`);
+  const override = Boolean(env.RECOVERY_OVERRIDE_CODE && env.RECOVERY_OVERRIDE_CODE.length >= 32 && constantTimeEqual(code, env.RECOVERY_OVERRIDE_CODE));
+  let changed: boolean;
+  if (override) {
+    const unused = await env.DB.prepare("SELECT code_hash FROM myhome_operator_recovery WHERE code_hash = ?").bind(codeHash).first();
+    if (unused) return json({ error: "Recovery code is incorrect or already used." }, 401);
+    try {
+      await env.DB.batch([
+        env.DB.prepare("INSERT INTO myhome_operator_recovery (code_hash) VALUES (?)").bind(codeHash),
+        env.DB.prepare("UPDATE myhome_owner SET password_hash = ?, password_salt = ?, password_iterations = ? WHERE id = 1").bind(hash, bytesToBase64(salt), passwordIterations),
+        env.DB.prepare("INSERT INTO myhome_recovery (id, code_hash) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET code_hash = excluded.code_hash").bind(newHash),
+        env.DB.prepare("DELETE FROM myhome_sessions"),
+      ]);
+      changed = true;
+    } catch { return json({ error: "Recovery code is incorrect or already used." }, 401); }
+  } else {
+    // Every write checks the old code inside one transaction; only one reset can win.
+    const results = await env.DB.batch([
+      env.DB.prepare("UPDATE myhome_owner SET password_hash = ?, password_salt = ?, password_iterations = ? WHERE id = 1 AND EXISTS (SELECT 1 FROM myhome_recovery WHERE id = 1 AND code_hash = ?)").bind(hash, bytesToBase64(salt), passwordIterations, codeHash),
+      env.DB.prepare("DELETE FROM myhome_sessions WHERE EXISTS (SELECT 1 FROM myhome_recovery WHERE id = 1 AND code_hash = ?)").bind(codeHash),
+      env.DB.prepare("UPDATE myhome_recovery SET code_hash = ? WHERE id = 1 AND code_hash = ?").bind(newHash, codeHash),
+    ]);
+    changed = results[0].meta.changes === 1;
+  }
+  if (!changed) return json({ error: "Recovery code is incorrect or already used." }, 401);
+  return json({ recoveryCode });
+}
+
+async function handleGithub(request: Request, env: Env, callback: boolean) {
+  if (request.method !== "GET") return json({ error: "Method not allowed." }, 405);
+  if (!env.SESSION_SECRET || !env.GITHUB_CLIENT_ID || !env.GITHUB_CLIENT_SECRET || !env.OWNER_GITHUB_ID) {
+    return json({ error: "GitHub login has not been configured." }, 503);
+  }
+  const url = new URL(request.url);
+  const cookie = (state: string, age: number) => `myhome_oauth=${state}; Path=/api/github; HttpOnly; SameSite=Lax; Max-Age=${age}${url.protocol === "https:" ? "; Secure" : ""}`;
+  if (!callback) {
+    if (!(await allowAuthAttempt(request, env))) return json({ error: "Too many attempts." }, 429);
+    const state = randomToken();
+    await env.DB.prepare("DELETE FROM myhome_oauth_states WHERE expires_at < ?").bind(Date.now()).run();
+    await env.DB.prepare("INSERT INTO myhome_oauth_states (state_hash, expires_at) VALUES (?, ?)").bind(await sha256(state), Date.now() + 600000).run();
+    const target = new URL("https://github.com/login/oauth/authorize");
+    target.search = new URLSearchParams({ client_id: env.GITHUB_CLIENT_ID, redirect_uri: `${url.origin}/api/github/callback`, state }).toString();
+    return new Response(null, { status: 302, headers: { location: target.href, "set-cookie": cookie(state, 600) } });
+  }
+  const state = url.searchParams.get("state") || "";
+  if (!state || !constantTimeEqual(state, cookieValue(request, "myhome_oauth"))) return json({ error: "GitHub login expired. Try again." }, 403);
+  const consumed = await env.DB.prepare("DELETE FROM myhome_oauth_states WHERE state_hash = ? AND expires_at > ? RETURNING state_hash").bind(await sha256(state), Date.now()).first();
+  if (!consumed) return json({ error: "GitHub login expired. Try again." }, 403);
+  const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
+    method: "POST", headers: { accept: "application/json", "content-type": "application/json" },
+    body: JSON.stringify({ client_id: env.GITHUB_CLIENT_ID, client_secret: env.GITHUB_CLIENT_SECRET, code: url.searchParams.get("code"), redirect_uri: `${url.origin}/api/github/callback` }),
+  });
+  const token = await tokenResponse.json() as { access_token?: string };
+  if (!tokenResponse.ok || !token.access_token) return json({ error: "GitHub authorization failed." }, 401);
+  const userResponse = await fetch("https://api.github.com/user", { headers: { authorization: `Bearer ${token.access_token}`, "user-agent": "MyHome", accept: "application/vnd.github+json" } });
+  const user = await userResponse.json() as { id?: number };
+  if (!userResponse.ok || String(user.id) !== env.OWNER_GITHUB_ID) return json({ error: "This GitHub account is not the site owner." }, 403);
+  const session = await createSession(request, env);
+  const headers = new Headers({ location: "/#/admin" });
+  headers.append("set-cookie", session.cookie);
+  headers.append("set-cookie", cookie("", 0));
+  return new Response(null, { status: 302, headers });
+}
+
+async function handleDraft(request: Request, env: Env) {
+  if (!(await authenticate(request, env))) return json({ error: "Owner login required." }, 401);
+  if (request.method === "GET") {
+    const row = await env.DB.prepare("SELECT document FROM myhome_draft WHERE id = 1").first<{ document: string }>()
+      || await env.DB.prepare("SELECT document FROM myhome_content WHERE id = 1").first<{ document: string }>();
+    return json({ document: row ? JSON.parse(row.document) : null });
+  }
+  if (request.method !== "PUT") return json({ error: "Method not allowed." }, 405);
+  if (!sameOrigin(request)) return json({ error: "Origin rejected." }, 403);
+  const body = await request.json() as { document?: unknown };
+  if (!isSiteDocument(body.document)) return json({ error: "Invalid draft." }, 400);
+  await env.DB.prepare("INSERT INTO myhome_draft (id, document) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET document = excluded.document").bind(JSON.stringify(body.document)).run();
+  return json({ saved: true });
+}
+
 async function handleLogout(request: Request, env: Env) {
   if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
   if (!sameOrigin(request)) return json({ error: "Origin rejected." }, 403);
@@ -523,6 +644,8 @@ async function handleUpload(request: Request, env: Env) {
   if (!(await authenticate(request, env))) {
     return json({ error: "Owner login required." }, 401);
   }
+  if (!env.MEDIA) return json({ error: "Uploads are disabled. Use a media URL or enable R2." }, 503);
+  const bucket = env.MEDIA;
 
   if (request.method === "PUT") {
     const url = new URL(request.url);
@@ -623,7 +746,7 @@ async function handleUpload(request: Request, env: Env) {
 
   const staged = await Promise.all(
     parts.map(async (part, index) => {
-      const object = await env.MEDIA.get(
+      const object = await bucket.get(
         stagingKey(id, uploadId, part.partNumber),
       );
       const expectedSize = Math.min(
@@ -694,6 +817,7 @@ async function handleAsset(
   env: Env,
   assetId: string,
 ) {
+  if (!env.MEDIA) return new Response("Not found", { status: 404 });
   if (request.method !== "GET") return json({ error: "Method not allowed." }, 405);
   if (!validUuid(assetId)) return new Response("Not found", { status: 404 });
   const row = await env.DB.prepare(
@@ -714,9 +838,16 @@ async function handleAsset(
 }
 
 async function api(request: Request, env: Env) {
+  const length = Number(request.headers.get("content-length"));
+  if (Number.isFinite(length) && length > 3 * 1024 * 1024) return json({ error: "Request too large." }, 413);
   await ensureSchema(env.DB);
   const url = new URL(request.url);
   if (url.pathname === "/api/site") return handleSite(request, env);
+  if (url.pathname === "/api/draft") return handleDraft(request, env);
+  if (url.pathname === "/api/recover") return handleRecovery(request, env);
+  if (url.pathname === "/api/github") return handleGithub(request, env, false);
+  if (url.pathname === "/api/github/callback") return handleGithub(request, env, true);
+  if (url.pathname === "/api/auth-options" && request.method === "GET") return json({ github: Boolean(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.OWNER_GITHUB_ID) });
   if (url.pathname === "/api/setup") return handleSetup(request, env);
   if (url.pathname === "/api/login") return handleLogin(request, env);
   if (url.pathname === "/api/session") return handleSession(request, env);
