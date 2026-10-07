@@ -47,10 +47,33 @@ blank and opens a first-time setup wizard.
 
 ### Cloudflare Workers browser wizard
 
-For Windows and Linux, install Node.js 22.18+ and Git, clone this repository,
-then run `npm ci` and `npm run setup:cloudflare`. A local browser wizard connects
-your Cloudflare account, sets up your profile and owner login, and deploys your
-site to a free `workers.dev` address. Save the recovery code at the end.
+Paste one command into your terminal. It downloads MyHome, installs dependencies,
+and opens the Aero browser wizard. Git and administrator access are not required;
+a local Node.js runtime is downloaded and checksum-verified if needed.
+
+**Windows PowerShell**
+
+```powershell
+& ([scriptblock]::Create((Invoke-WebRequest -UseBasicParsing 'https://raw.githubusercontent.com/memegeko/MyHome/work/scripts/install.ps1').Content))
+```
+
+**Linux / macOS**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/memegeko/MyHome/work/scripts/install.sh | bash
+```
+
+The download runs a script from this repository; you can inspect
+[the Linux script](scripts/install.sh) or [the Windows script](scripts/install.ps1)
+first. Linux/macOS need `curl`, `tar`, `gzip` and `sha256sum` or `shasum`.
+The commands currently use the `work` branch.
+
+Connect Cloudflare in the wizard, personalize your site, and choose your login.
+Save your recovery code when deployment finishes. Keep the terminal open until
+then. To reopen setup later, use `MyHome/start-setup.cmd` on Windows or
+`./MyHome/start-setup.sh` on Linux/macOS. Existing folders are never overwritten.
+
+Already have the repository? Run `npm ci` and `npm run setup:cloudflare`.
 
 The admin panel supports private drafts, preview, and publishing. GitHub login
 requires an OAuth app; R2 uploads are optional. See the

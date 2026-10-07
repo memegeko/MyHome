@@ -5,8 +5,12 @@ local browser page and uses Cloudflare's Wrangler login. Each owner deploys
 into their own Cloudflare account and retains dashboard access to the Worker,
 D1 database, and optional R2 bucket.
 
-Install Node.js **22.18 or newer** (Node 24 LTS is recommended) and Git, then run
-the same commands in PowerShell or a Linux terminal:
+The [one-command installer](../wiki/Installation.md) downloads MyHome,
+installs dependencies and opens this wizard on Windows and Linux/macOS.
+It downloads a checksum-verified local Node.js runtime when needed, without
+administrator access. Existing installation folders are never overwritten.
+
+If you prefer a Git checkout, install Node.js **22.18 or newer** and Git:
 
 ```sh
 git clone https://github.com/memegeko/MyHome.git
