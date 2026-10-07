@@ -1,4 +1,4 @@
-# 🎨 Make it yours
+# Make it yours
 
 [Wiki home](README.md) · [Install](Installation.md) · [Publish](Publishing-and-recovery.md)
 

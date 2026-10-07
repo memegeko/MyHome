@@ -1,4 +1,4 @@
-# ☁️ Install your own home
+# Install your own home
 
 [Wiki home](README.md) · [Next: customization](Customization.md)
 
@@ -47,7 +47,6 @@ These installer screenshots use simulated deployment responses. For OAuth app
 configuration, retry behavior and custom domains, read the
 [complete deployment guide](../deployment/WIZARD.md).
 
-Prefer GitHub Pages? Follow the [static deployment guide](../deployment/STATIC.md).
 
 ## Reopen or retry
 

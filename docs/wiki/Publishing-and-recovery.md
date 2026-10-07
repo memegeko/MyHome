@@ -1,4 +1,4 @@
-# 🔐 Drafts, publishing and recovery
+# Drafts, publishing and recovery
 
 [Wiki home](README.md) · [Customize](Customization.md)
 

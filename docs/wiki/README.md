@@ -1,4 +1,4 @@
-# 🪟 MyHome illustrated wiki
+# MyHome illustrated wiki
 
 ![MyHome Aero edition](../assets/aero-header.svg)
 
