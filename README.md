@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/myhome.svg" width="116" alt="MyHome logo">
+<img src="docs/assets/aero-header.svg" width="100%" alt="MyHome Aero edition — Welcome home">
 
 # MyHome
 
@@ -17,6 +17,7 @@ tools, flexible content blocks and both static and server deployments.
 [Live setup](https://memegeko.github.io/MyHome/) ·
 [Full showcase](https://memegeko.github.io/MyHome/?demo=showcase) ·
 [Example ZIP](https://memegeko.github.io/MyHome/examples/myhome-showcase.zip) ·
+[Illustrated wiki](docs/wiki/README.md) ·
 [Installation](docs/getting-started/INSTALL.md) ·
 [Static guide](docs/deployment/STATIC.md) ·
 [Server guide](docs/deployment/SERVER.md)
@@ -93,7 +94,7 @@ macOS and Windows. See the complete
 | Edition | Best for | Storage | Start command |
 |---|---|---|---|
 | **Static** | GitHub Pages and simple hosting | Encrypted repository configuration + browser | `npm run dev` |
-| **Server** | Shared production site with durable uploads | Cloudflare D1 + R2 | `npm run dev:server` |
+| **Server** | Shared production site with durable uploads | Cloudflare D1 + optional R2 | `npm run dev:server` |
 
 Prepare local server mode with:
 
@@ -140,15 +141,25 @@ Developers can also work directly with:
 - [Themes and presets](docs/customization/THEMES.md)
 - [Security model](docs/reference/SECURITY.md)
 
-## 🖼️ Example design
+## 🪟 A look through the glass
 
-The included Aero Glass preset uses CSS-generated scenery and interface effects.
-It contains no personal text or copyrighted artwork.
+A Windows 7-inspired installer with glossy controls, gentle transitions and a
+live profile preview. The site starts blank; the showcase is example content.
 
-![Customized MyHome Aero profile](docs/screenshots/geko-miku-space.svg)
+![Aero installer with expanded personalization](docs/screenshots/installer-theme.png)
 
-Documentation screenshots may show Geko's personalized site for inspiration.
-Artwork visible inside those screenshots is not part of the reusable template.
+| Your public home | Setup on a small screen |
+|---|---|
+| ![MyHome desktop showcase](docs/screenshots/site-showcase-1440.png) | <img src="docs/screenshots/installer-mobile.png" width="280" alt="Mobile Aero installer"> |
+
+**Explore the illustrated wiki:** [Start here](docs/wiki/README.md) ·
+[Install](docs/wiki/Installation.md) · [Customize](docs/wiki/Customization.md) ·
+[Publish and recover](docs/wiki/Publishing-and-recovery.md)
+
+These screenshots were captured during local Chromium browser checks on
+**7 October 2026**. Installer deployment responses were simulated; live
+Cloudflare deployment and GitHub OAuth still need account testing. See
+[the screenshot notes](docs/screenshots/README.md) for details and image rights.
 
 ## ✅ Development checks
 
